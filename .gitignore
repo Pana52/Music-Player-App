@@ -136,3 +136,45 @@ GitHub.sublime-settings
 !.vscode/launch.json 
 !.vscode/extensions.json 
 .history
+
+# Node.js #
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# React Native #
+android/
+ios/
+build/
+
+# React Native for Web specific #
+.web-build/
+.next/
+out/
+
+# Expo #
+.expo/
+.expo-shared/
+
+# Webpack/Parcel build files #
+dist/
+.bundle/
+
+# Miscellaneous #
+*.log
+*.gz
+*.zip
+*.tar
+*.tgz
+.DS_Store
+Thumbs.db
+
+# Environment variables #
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
