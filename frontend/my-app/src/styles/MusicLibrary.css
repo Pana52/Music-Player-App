@@ -3,7 +3,10 @@
   margin: 0 auto;
   padding: 20px;
   max-width: 1000px;
+  position: relative; /* Ensures the library does not override the sidebar */
+  z-index: 1; /* Lower z-index to ensure the sidebar has priority */
 }
+
 
 .song-title {
   font-size: 2rem;
@@ -48,11 +51,11 @@
 }
 
 .previous-button {
-  left: -60px; /* Adjust to move the button to the left of the image */
+  left: 100px; /* Adjust to move the button to the left of the image */
 }
 
 .next-button {
-  right: -60px; /* Adjust to move the button to the right of the image */
+  right: 100px; /* Adjust to move the button to the right of the image */
 }
 
 .audio-player {

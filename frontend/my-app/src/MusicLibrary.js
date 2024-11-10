@@ -1,19 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ReactH5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import './MusicLibrary.css'; // Custom styling
-import './AudioPlayer.css';
+import './styles/MusicLibrary.css'; // Custom styling
+import './styles/AudioPlayer.css';
 
-function MusicLibrary() {
-  const [songs, setSongs] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    fetch('http://localhost:8000/api/songs/')
-      .then(response => response.json())
-      .then(data => setSongs(data.files))
-      .catch(error => console.error('Error fetching data:', error));
-  }, []);
+function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
+  const [volume, setVolume] = useState(0.7); // Initial volume (70%)
 
   const handleNext = () => {
     setCurrentIndex((currentIndex + 1) % songs.length);
@@ -21,6 +13,12 @@ function MusicLibrary() {
 
   const handlePrevious = () => {
     setCurrentIndex((currentIndex - 1 + songs.length) % songs.length);
+  };
+
+  const handleVolumeChange = (event) => {
+    const linearVolume = event.target.volume;
+    const logarithmicVolume = Math.pow(linearVolume, 2); // Logarithmic adjustment for volume
+    setVolume(logarithmicVolume);
   };
 
   if (songs.length === 0) {
@@ -32,14 +30,6 @@ function MusicLibrary() {
 
   return (
     <div className="music-library-container">
-      <h3 className="song-title">{currentSong.title} by {currentSong.artist}</h3>
-      <p className="song-info">Album: {currentSong.album}</p>
-      <p className="song-info">Genre: {currentSong.genre || 'N/A'}</p>
-      <p className="song-info">
-        Duration: {Math.floor(currentSong.duration / 60)}:{Math.floor(currentSong.duration % 60).toString().padStart(2, '0')}
-      </p>
-      <p className="song-info">Release Date: {currentSong.release_date || 'N/A'}</p>
-
       <div className="album-image-container">
         <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
         <img
@@ -50,9 +40,20 @@ function MusicLibrary() {
         <button onClick={handleNext} className="nav-button next-button">&rarr;</button>
       </div>
 
+      <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
+      <p className="song-info">Album: {currentSong.album}</p>
+      <p className="song-info">Genre: {currentSong.genre || 'N/A'}</p>
+      <p className="song-info">
+        Duration: {Math.floor(currentSong.duration / 60)}:{Math.floor(currentSong.duration % 60).toString().padStart(2, '0')}
+      </p>
+      <p className="song-info">Release Date: {currentSong.release_date || 'N/A'}</p>
+
       <ReactH5AudioPlayer
         src={`http://localhost:8000/api/songs/${currentSong.filename}`}
+        volume={volume}
+        onVolumeChange={handleVolumeChange}
         onPlay={() => console.log('Playing')}
+        onEnded={handleNext} // Trigger next song when the current one ends
         controls
         className="audio-player"
       />
