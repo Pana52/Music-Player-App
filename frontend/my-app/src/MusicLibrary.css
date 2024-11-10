@@ -1,0 +1,62 @@
+.music-library-container {
+  text-align: center;
+  margin: 0 auto;
+  padding: 20px;
+  max-width: 1000px;
+}
+
+.song-title {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.song-info {
+  font-size: 1.2rem;
+  margin: 5px 0;
+}
+
+.album-image-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.album-image {
+  width: 50vw; /* Adjust the width as needed */
+  max-width: 512px; /* Maximum size */
+  height: auto;
+  object-fit: cover;
+  border-radius: 15px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.75); /* Soft shadow inside */
+}
+
+
+.nav-button {
+  position: absolute;
+  top: 50%; /* Center vertically */
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border: none;
+  background-color: #333; /* Dark background */
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  border-radius: 50%; /* Makes the button circular */
+}
+
+.previous-button {
+  left: -60px; /* Adjust to move the button to the left of the image */
+}
+
+.next-button {
+  right: -60px; /* Adjust to move the button to the right of the image */
+}
+
+.audio-player {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}

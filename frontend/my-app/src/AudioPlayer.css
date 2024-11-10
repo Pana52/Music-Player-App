@@ -1,0 +1,26 @@
+.audio-player {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); /* Subtle shadow for depth */
+    backdrop-filter: blur(10px); /* Glass effect */
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Light border for the glassy effect */
+    color: white; /* Text color */
+  }
+  
+  .audio-player .rhap_main {
+    color: white; /* Ensure control colors contrast with the background */
+  }
+  
+  .audio-player .rhap_button-clear {
+    background-color: transparent;
+  }
+  
+  .audio-player .rhap_time, .audio-player .rhap_progress-container {
+    color: white;
+  }
+
+  

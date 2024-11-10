@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "react-dom": "^18.3.1",
+    "react-h5-audio-player": "^3.9.3",
     "react-native-web": "^0.19.13"
   },
   "devDependencies": {
