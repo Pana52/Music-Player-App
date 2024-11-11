@@ -1,5 +1,6 @@
 import React from 'react';
 import './styles/SideBar.css';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 function SideBar({ currentSong }) {
   const defaultImage = '/default-album-cover.png'; // Path to default image
@@ -30,9 +31,15 @@ function SideBar({ currentSong }) {
 
         <h3>Social Media Links</h3>
         <div className="social-media-buttons">
-          <button className="social-button">YouTube</button>
-          <button className="social-button">Spotify</button>
-          <button className="social-button">Twitter</button>
+          <button className="social-button spotify">
+            <i className="fab fa-spotify"></i> Spotify
+          </button>
+          <button className="social-button youtube">
+            <i className="fab fa-youtube"></i> YouTube
+          </button>
+          <button className="social-button twitter">
+            <i className="fab fa-twitter"></i> Twitter
+          </button>
         </div>
       </div>
 

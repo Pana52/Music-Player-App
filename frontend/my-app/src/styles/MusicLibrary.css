@@ -7,11 +7,6 @@
   z-index: 1; /* Lower z-index to ensure the sidebar has priority */
 }
 
-.song-title {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
 .song-info {
   font-size: 1.2rem;
   margin: 5px 0;
@@ -36,40 +31,48 @@
   backdrop-filter: blur(10px); /* Glass effect */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.3); /* Outer shadow and soft inner glow */
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  will-change: transform; /* Improves animation performance */
 }
 
 .album-image:hover {
-  transform: scale(1.05) rotateY(10deg); /* 3D hover effect */
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.4); /* Enhanced shadow on hover */
 }
 
+/* Navigation button styling */
 .nav-button {
   position: absolute;
-  top: 50%; /* Center vertically */
-  transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
+  top: 0;
+  width: 100px; /* Fixed width for each button */
+  height: 100%; /* Occupies full height of the container */
   border: none;
-  background-color: rgba(51, 51, 51, 0.7); /* Semi-transparent background */
+  background: rgba(255, 255, 255, 0.1); /* Glassy effect */
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
-  border-radius: 50%; /* Circular buttons */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-  transition: background 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0 15px 15px 0; /* Rounded inner corners */
+  backdrop-filter: blur(8px); /* Glossy glass effect */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.3s, transform 0.2s;
+  z-index: 2; /* Ensures buttons are above the image */
 }
 
 .nav-button:hover {
-  background-color: rgba(85, 85, 85, 0.9); /* Darker background on hover */
-  transform: scale(1.1); /* Slight scale up on hover */
+  background-color: rgba(85, 85, 85, 0.4); /* Darker background on hover */
+  transform: scale(1.02); /* Slight scale up on hover */
 }
 
+/* Specific styles for the left and right buttons */
 .previous-button {
-  left: 100px; /* Adjust to move the button to the left of the image */
+  left: 100px; /* Positions outside the image on the left */
+  border-radius: 15px 0 0 15px;
 }
 
 .next-button {
-  right: 100px; /* Adjust to move the button to the right of the image */
+  right: 100px; /* Positions outside the image on the right */
+  border-radius: 0 15px 15px 0;
 }
 
 .audio-player {
