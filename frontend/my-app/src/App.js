@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './styles/App.css';
 import './styles/backgrounds/Waves.css';
-import MusicLibrary from './MusicLibrary'; // Ensure this import is correct
-import MusicSideBar from './MusicSideBar'; // Import the sidebar component
+import MusicLibrary from './MusicLibrary'; // Main music library component
+import MusicSideBar from './MusicSideBar'; // Sidebar for song selection
+import SideBar from './SideBar'; // Right sidebar for song and artist details
 
 function App() {
   const [songs, setSongs] = useState([]);
@@ -15,25 +16,31 @@ function App() {
       .catch(error => console.error('Error fetching data:', error));
   }, []);
 
+  // Get the currently selected song
+  const currentSong = songs[currentIndex] || null;
+
   return (
     <div className="App">
-      {/* You can add a header or navbar here if needed */}
+      {/* Background wave elements */}
       <div className="wave"></div>
       <div className="wave"></div>
 
-      {/* Render the MusicSideBar and pass props */}
+      {/* Render the left sidebar for song selection */}
       <MusicSideBar
         songs={songs}
         currentIndex={currentIndex}
         setCurrentIndex={setCurrentIndex}
       />
 
-      {/* Render the MusicLibrary and pass props */}
+      {/* Render the main music library */}
       <MusicLibrary
         songs={songs}
         currentIndex={currentIndex}
         setCurrentIndex={setCurrentIndex}
       />
+
+      {/* Render the right sidebar for song and artist details */}
+      <SideBar currentSong={currentSong} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactH5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 import './styles/MusicLibrary.css'; // Custom styling
@@ -6,6 +6,27 @@ import './styles/AudioPlayer.css';
 
 function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
   const [volume, setVolume] = useState(0.7); // Initial volume (70%)
+  const albumImageRef = useRef(null);
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      if (!albumImageRef.current) return;
+
+      const { clientX, clientY } = event;
+      const rect = albumImageRef.current.getBoundingClientRect();
+      const offsetX = (clientX - rect.left) / rect.width - 0.5;
+      const offsetY = (clientY - rect.top) / rect.height - 0.5;
+
+      albumImageRef.current.style.transform = `rotateX(${-offsetY * 10}deg) rotateY(${offsetX * 10}deg)`;
+    };
+
+    const albumImage = albumImageRef.current;
+    albumImage.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      albumImage.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
 
   const handleNext = () => {
     setCurrentIndex((currentIndex + 1) % songs.length);
@@ -33,6 +54,7 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
       <div className="album-image-container">
         <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
         <img
+          ref={albumImageRef}
           src={currentSong.albumImage || defaultImage}
           alt={currentSong.album || 'Unknown Album'}
           className="album-image"
@@ -41,12 +63,6 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
       </div>
 
       <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
-      <p className="song-info">Album: {currentSong.album}</p>
-      <p className="song-info">Genre: {currentSong.genre || 'N/A'}</p>
-      <p className="song-info">
-        Duration: {Math.floor(currentSong.duration / 60)}:{Math.floor(currentSong.duration % 60).toString().padStart(2, '0')}
-      </p>
-      <p className="song-info">Release Date: {currentSong.release_date || 'N/A'}</p>
 
       <ReactH5AudioPlayer
         src={`http://localhost:8000/api/songs/${currentSong.filename}`}
