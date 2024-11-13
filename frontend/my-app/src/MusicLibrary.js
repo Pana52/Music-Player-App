@@ -1,19 +1,30 @@
 import React, { useState, useRef } from 'react';
 import ReactH5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import './styles/MusicLibrary.css'; // Custom styling
+import './styles/MusicLibrary.css';
 import './styles/AudioPlayer.css';
+import SoundVisualizer from './SoundVisualizer';
 
 function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
-  const [volume, setVolume] = useState(0.7); // Initial volume (70%)
+  const [volume, setVolume] = useState(0.7);
+  const audioRef = useRef(null); // Reference to the audio player
   const albumImageRef = useRef(null);
+
+  const handlePlay = () => {
+    // Resume the audio context here
+    if (audioRef.current && audioRef.current.audio.current) {
+      const audioElement = audioRef.current.audio.current;
+      if (audioElement.audioContext && audioElement.audioContext.state === 'suspended') {
+        audioElement.audioContext.resume();
+      }
+    }
+  };
 
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
     const rect = albumImageRef.current.getBoundingClientRect();
     const offsetX = (clientX - rect.left) / rect.width - 0.5;
     const offsetY = (clientY - rect.top) / rect.height - 0.5;
-
     albumImageRef.current.style.transform = `rotateX(${-offsetY * 10}deg) rotateY(${offsetX * 10}deg)`;
   };
 
@@ -33,7 +44,7 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
 
   const handleVolumeChange = (event) => {
     const linearVolume = event.target.volume;
-    const logarithmicVolume = Math.pow(linearVolume, 2); // Logarithmic adjustment for volume
+    const logarithmicVolume = Math.pow(linearVolume, 2);
     setVolume(logarithmicVolume);
   };
 
@@ -42,8 +53,8 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
   }
 
   const currentSong = songs[currentIndex];
-  const defaultImage = '/default-album-cover.png'; // Ensure this image is in the public directory
-  const albumImage = currentSong.albumImage || defaultImage; // Fallback to default image if albumImage is null
+  const defaultImage = '/default-album-cover.png';
+  const albumImage = currentSong.albumImage || defaultImage;
 
   return (
     <div className="music-library-container">
@@ -54,8 +65,8 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
           src={albumImage}
           alt={currentSong.album || 'Unknown Album'}
           className="album-image"
-          onMouseMove={handleMouseMove}  // Add parallax effect on mouse move
-          onMouseLeave={handleMouseLeave} // Reset effect on mouse leave
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
         />
         <button onClick={handleNext} className="nav-button next-button">&rarr;</button>
       </div>
@@ -63,14 +74,20 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
       <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
 
       <ReactH5AudioPlayer
+        ref={audioRef}
         src={`http://localhost:8000/api/songs/${currentSong.filename}`}
         volume={volume}
         onVolumeChange={handleVolumeChange}
-        onPlay={() => console.log('Playing')}
-        onEnded={handleNext} // Trigger next song when the current one ends
+        onPlay={handlePlay} // Trigger context resume on play
+        onEnded={handleNext}
         controls
         className="audio-player"
+        crossOrigin="anonymous"
       />
+
+      {audioRef.current && audioRef.current.audio.current && (
+        <SoundVisualizer audioElement={audioRef.current.audio.current} />
+      )}
     </div>
   );
 }
