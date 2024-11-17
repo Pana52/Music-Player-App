@@ -60,3 +60,12 @@ def song_list(request):
     songs = Song.objects.all()
     serializer = SongSerializer(songs, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def artist_details(request, artist_name):
+    from .artist_details import get_artist_details
+    try:
+        details = get_artist_details(artist_name)
+        return JsonResponse(details, safe=False)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)

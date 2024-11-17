@@ -1,8 +1,10 @@
 // SoundVisualizer.js
 import React, { useRef, useEffect } from 'react';
 
-var FFT_SIZE = 256;
+const FFT_SIZE = 256;
 const BAR_HEIGHT_SCALE = 3;
+const SIZE = 2;
+
 
 function SoundVisualizer({ audioElement }) {
   const canvasRef = useRef(null);
@@ -58,7 +60,7 @@ function SoundVisualizer({ audioElement }) {
       backgroundGradient.addColorStop(0.5, 'rgba(0, 255, 150, 0.3)');
       backgroundGradient.addColorStop(1, 'rgba(0, 150, 255, 0.3)');
 
-      gradientOffset += 2; // Adjust for animation speed
+      gradientOffset += SIZE; // Adjust for animation speed
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let barHeight;

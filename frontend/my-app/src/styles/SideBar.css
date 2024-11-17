@@ -1,5 +1,5 @@
 .sidebar {
-    width: 250px;
+    width: 20%;
     padding: 20px;
     background-color: rgba(20, 20, 20, 0.9); /* Semi-transparent background */
     color: white;
@@ -67,6 +67,7 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Base shadow */
     position: relative;
     overflow: hidden;
+    text-decoration: none;
   }
   
   .social-button i {
