@@ -46,7 +46,9 @@ function SideBar({ currentSong }) {
             ? artistDetails.discography.map((album, index) => (
                 <div key={index} className="album-cover">
                   <img
-                    src={album.coverImage || defaultImage}
+                    src={album.coverImage && album.coverImage.startsWith("http") 
+                          ? album.coverImage 
+                          : `${process.env.PUBLIC_URL}/default-album-cover.png`}
                     alt={album.name}
                   />
                   <p>{album.name} ({album.release_date})</p>

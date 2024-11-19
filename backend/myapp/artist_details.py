@@ -153,9 +153,7 @@ def fetch_artist_details(artist_name):
                 "twitter": None
             }
         }
-
-
-
+    
 
 if __name__ == "__main__":
     # Example usage for testing
