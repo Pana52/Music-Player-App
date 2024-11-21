@@ -51,8 +51,7 @@ def update_discography_with_covers(json_file):
     artist_name = os.path.basename(json_file).replace('.json', '').replace('_', ' ')
     
     for album in artist_data.get('discography', []):
-        # Search Genius.com for the album
-        print(f"Searching Genius.com for: {album['name']} by {artist_name}")
+        print(f"Processing album: {album['name']}")
         album_url = search_genius(artist_name, album['name'])
 
         if album_url:
@@ -62,10 +61,15 @@ def update_discography_with_covers(json_file):
             print(f"No URL found for {album['name']}. Using default image.")
             album['coverImage'] = defaultImage
 
+    # Debug: Confirm coverImage is updated
+    print(f"Updated cover image for {album['name']}: {album['coverImage']}")
+
+
     # Overwrite the existing JSON file
     with open(json_file, 'w') as file:
         json.dump(artist_data, file, indent=4)
     print(f"Updated JSON saved at {json_file}")
+
 
 if __name__ == "__main__":
     json_file_path = r"D:\Music-Player-App\media\artist\Tally_Hall.json"

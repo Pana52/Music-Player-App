@@ -8,9 +8,24 @@ from rest_framework.decorators import api_view
 import os
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, TALB
+from .process_artist_data import process_artist_data
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
+
+@api_view(['POST'])
+def process_artist_data_view(request):
+    from .process_artist_data import process_artist_data  # Corrected import path
+    try:
+        artist_name = request.data.get("artist_name", "")
+        if not artist_name:
+            return JsonResponse({"error": "Artist name is required."}, status=400)
+
+        # Call the script to process artist data
+        process_artist_data(artist_name)
+        return JsonResponse({"status": f"Artist data processed for {artist_name}."})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
 
 
 @api_view(['GET'])

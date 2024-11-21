@@ -1,24 +1,9 @@
-import React, { useState, useRef } from 'react';
-import ReactH5AudioPlayer from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css';
+import React, { useRef } from 'react';
 import './styles/MusicLibrary.css';
 import './styles/AudioPlayer.css';
-import SoundVisualizer from './SoundVisualizer';
 
 function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
-  const [volume, setVolume] = useState(0.7);
-  const audioRef = useRef(null); // Reference to the audio player
   const albumImageRef = useRef(null);
-
-  const handlePlay = () => {
-    // Resume the audio context here
-    if (audioRef.current && audioRef.current.audio.current) {
-      const audioElement = audioRef.current.audio.current;
-      if (audioElement.audioContext && audioElement.audioContext.state === 'suspended') {
-        audioElement.audioContext.resume();
-      }
-    }
-  };
 
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
@@ -40,12 +25,6 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
 
   const handlePrevious = () => {
     setCurrentIndex((currentIndex - 1 + songs.length) % songs.length);
-  };
-
-  const handleVolumeChange = (event) => {
-    const linearVolume = event.target.volume;
-    const logarithmicVolume = Math.pow(linearVolume, 2);
-    setVolume(logarithmicVolume);
   };
 
   if (songs.length === 0) {
@@ -72,22 +51,6 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
       </div>
 
       <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
-
-      <ReactH5AudioPlayer
-        ref={audioRef}
-        src={`http://localhost:8000/api/songs/${currentSong.filename}`}
-        volume={volume}
-        onVolumeChange={handleVolumeChange}
-        onPlay={handlePlay} // Trigger context resume on play
-        onEnded={handleNext}
-        controls
-        className="audio-player"
-        crossOrigin="anonymous"
-      />
-
-      {audioRef.current && audioRef.current.audio.current && (
-        <SoundVisualizer audioElement={audioRef.current.audio.current} />
-      )}
     </div>
   );
 }

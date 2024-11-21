@@ -1,26 +1,44 @@
 .audio-player {
-    width: 100%;
-    max-width: 80%;
-    margin: 20px auto;
-    padding: 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); /* Subtle shadow for depth */
-    backdrop-filter: blur(10px); /* Glass effect */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Light border for the glassy effect */
-    color: white; /* Text color */
-  }
-  
-  .audio-player .rhap_main {
-    color: white; /* Ensure control colors contrast with the background */
-  }
-  
-  .audio-player .rhap_button-clear {
-    background-color: transparent;
-  }
-  
-  .audio-player .rhap_time, .audio-player .rhap_progress-container {
-    color: white;
-  }
+  background-color: #1e1e1e !important;
+  color: #fff !important;
+  border-radius: 8px !important;
+}
 
-  
+
+.audio-player .rhap_main {
+  color: white;
+}
+
+.audio-player .rhap_button-clear {
+  background-color: transparent;
+}
+
+.audio-player .rhap_time,
+.audio-player .rhap_progress-container {
+  color: white;
+}
+
+/* Style the progress bar */
+.audio-player .rhap_progress-indicator {
+  background-color: white;
+  border: none;
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+.audio-player .rhap_progress-filled {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.audio-player .rhap_volume-container {
+  color: white;
+}
+
+.audio-player .rhap_controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}

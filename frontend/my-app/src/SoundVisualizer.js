@@ -1,16 +1,14 @@
-// SoundVisualizer.js
 import React, { useRef, useEffect } from 'react';
 
 const FFT_SIZE = 256;
 const BAR_HEIGHT_SCALE = 3;
 const SIZE = 2;
 
-
 function SoundVisualizer({ audioElement }) {
   const canvasRef = useRef(null);
   const audioContextRef = useRef(null);
   const analyserRef = useRef(null);
-  let gradientOffset = 0;
+  const gradientOffset = useRef(0); // Use useRef for gradientOffset
 
   useEffect(() => {
     const initAudioContext = () => {
@@ -51,16 +49,16 @@ function SoundVisualizer({ audioElement }) {
 
       // Create a looping background gradient
       const backgroundGradient = canvasContext.createLinearGradient(
-        gradientOffset % (canvas.width * 2),
+        gradientOffset.current % (canvas.width * 2),
         0,
-        (gradientOffset % (canvas.width * 2)) + canvas.width * 2,
+        (gradientOffset.current % (canvas.width * 2)) + canvas.width * 2,
         canvas.height
       );
       backgroundGradient.addColorStop(0, 'rgba(255, 0, 150, 0.3)');
       backgroundGradient.addColorStop(0.5, 'rgba(0, 255, 150, 0.3)');
       backgroundGradient.addColorStop(1, 'rgba(0, 150, 255, 0.3)');
 
-      gradientOffset += SIZE; // Adjust for animation speed
+      gradientOffset.current += SIZE; // Use .current to persist the value
 
       const barWidth = (canvas.width / bufferLength) * 2.5;
       let barHeight;

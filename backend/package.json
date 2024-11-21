@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "html-loader": "^5.1.0"
+  },
+  "dependencies": {
+    "react-router-dom": "^6.28.0"
   }
 }
