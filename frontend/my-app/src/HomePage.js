@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
-import './styles/MusicLibrary.css';
+import './styles/Home.css';
 import './styles/AudioPlayer.css';
 
-function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
+function Home({ songs, currentIndex, setCurrentIndex }) {
   const albumImageRef = useRef(null);
 
   const handleMouseMove = (event) => {
@@ -55,4 +55,4 @@ function MusicLibrary({ songs, currentIndex, setCurrentIndex }) {
   );
 }
 
-export default MusicLibrary;
+export default Home;

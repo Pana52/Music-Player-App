@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import './styles/App.css';
 import './styles/backgrounds/Waves.css';
-import MusicLibrary from './MusicLibrary';
-import MusicSideBar from './MusicSideBar';
-import SideBar from './SideBar';
+import Home from './HomePage';
+import Music from './MusicPage';
+import SideBar from './ArtistPage';
 import Settings from './Settings';
 import Explore from './Explore';
 import ReactH5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
-import { AudioContext, AudioProvider } from './AudioContext';
-import SoundVisualizer from './SoundVisualizer';
-import './styles/AudioPlayer.css';
-
+import { AudioPlayerContext, AudioProvider } from './AudioContext';
 
 function AppContent() {
   const [songs, setSongs] = useState([]); // Songs data
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { currentSong, setCurrentSong, audioRef, isPlaying } = useContext(AudioContext);
-  const location = useLocation(); // Get the current route path
+  const { currentSong, setCurrentSong, audioRef, isPlaying } = useContext(AudioPlayerContext);
 
   useEffect(() => {
     // Fetch songs from the API
@@ -37,20 +33,12 @@ function AppContent() {
 
   return (
     <div className="App">
-      <div className="wave"></div>
-      <div className="wave"></div>
-
-      {/* Conditionally render SoundVisualizer only on the Home tab */}
-      {location.pathname === '/' && currentSong && audioRef.current?.audio.current && (
-        <SoundVisualizer audioElement={audioRef.current.audio.current} />
-      )}
-
       {/* Main content routed based on the current path */}
       <Routes>
         <Route
           path="/"
           element={
-            <MusicLibrary
+            <Home
               songs={songs}
               currentIndex={currentIndex}
               setCurrentIndex={setCurrentIndex}
@@ -64,7 +52,7 @@ function AppContent() {
         <Route
           path="/music"
           element={
-            <MusicSideBar
+            <Music
               songs={songs}
               currentIndex={currentIndex}
               setCurrentIndex={setCurrentIndex}
@@ -80,9 +68,8 @@ function AppContent() {
         ref={audioRef}
         src={currentSong ? `http://localhost:8000/api/songs/${currentSong.filename}` : null}
         autoPlay={isPlaying}
-        crossOrigin="anonymous" // Ensure CORS compatibility
         controls
-        className="audio-player"
+        className="persistent-audio-player"
       />
 
       {/* Bottom Navigation Bar */}

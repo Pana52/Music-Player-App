@@ -1,7 +1,7 @@
 import React from 'react';
-import './styles/MusicSideBar.css'; // Custom styling for the sidebar
+import './styles/Music.css'; // Custom styling for the sidebar
 
-function MusicSideBar({ songs, currentIndex, setCurrentIndex }) {
+function Music({ songs, currentIndex, setCurrentIndex }) {
   const defaultImage = '/default-album-cover.png'; // Path to default image
 
   if (songs.length === 0) {
@@ -35,4 +35,4 @@ function MusicSideBar({ songs, currentIndex, setCurrentIndex }) {
   );
 }
 
-export default MusicSideBar;
+export default Music;

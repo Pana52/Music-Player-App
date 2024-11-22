@@ -1,23 +1,36 @@
 import React, { createContext, useRef, useState } from 'react';
 
-export const AudioContext = createContext();
+export const AudioPlayerContext = createContext(); // Renamed to avoid conflicts
 
 export function AudioProvider({ children }) {
-  const audioRef = useRef(null); // Reference for the audio player
+  const audioRef = useRef(null);
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
+  const playPauseAudio = () => {
+    if (audioRef.current?.audio.current) {
+      const audio = audioRef.current.audio.current;
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        audio.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
   return (
-    <AudioContext.Provider
+    <AudioPlayerContext.Provider
       value={{
         audioRef,
         currentSong,
         setCurrentSong,
         isPlaying,
         setIsPlaying,
+        playPauseAudio,
       }}
     >
       {children}
-    </AudioContext.Provider>
+    </AudioPlayerContext.Provider>
   );
 }

@@ -62,6 +62,10 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development; restrict in production
+CORS_ALLOW_CREDENTIALS = True
+
+# Add this header for audio sources
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Content-Disposition']
 
 ROOT_URLCONF = 'myproject.urls'
 
