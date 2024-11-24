@@ -1,11 +1,11 @@
 import React from 'react';
-import './styles/Music.css'; // Custom styling for the sidebar
+import './styles/Music.css'; // Custom styling for the full-page layout
 
 function Music({ songs, currentIndex, setCurrentIndex }) {
   const defaultImage = '/default-album-cover.png'; // Path to default image
 
   if (songs.length === 0) {
-    return <p>No songs available</p>;
+    return <p className="no-songs-message">No songs available</p>;
   }
 
   const handleSongClick = (index) => {
@@ -13,24 +13,29 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   };
 
   return (
-    <div className="music-sidebar">
-      <h2>Song List</h2>
-      <ul className="song-list">
+    <div className="music-page">
+      <header className="music-header">
+        <h1>Song List</h1>
+      </header>
+      <div className="song-grid">
         {songs.map((song, index) => (
-          <li
+          <div
             key={index}
-            className={`song-item ${index === currentIndex ? 'active' : ''}`}
-            onClick={() => handleSongClick(index)} // Ensure the entire item is clickable
+            className={`song-card ${index === currentIndex ? 'active' : ''}`}
+            onClick={() => handleSongClick(index)} // Make the entire card clickable
           >
             <img
               src={song.albumImage || defaultImage}
               alt={`${song.title} album cover`}
               className="song-thumbnail"
             />
-            <span className="song-title">{song.title} - {song.artist}</span>
-          </li>
+            <div className="song-details">
+              <h3 className="song-title">{song.title}</h3>
+              <p className="song-artist">{song.artist}</p>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
