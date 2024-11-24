@@ -1,56 +1,8 @@
-:root {
-    --dark-red: rgba(139, 0, 0, 0.25);
-    --darker-red: rgba(100, 0, 0, 0.25);
-    --bright-red: rgba(255, 99, 71, 0.25);
-    --red: rgba(255, 0, 0, 1);
-  
-    --dark-blue: rgba(0, 0, 139, 0.25);
-    --darker-blue: rgba(0, 0, 100, 0.25);
-    --bright-blue: rgba(70, 130, 180, 0.25);
-    --blue: rgba(0, 0, 255, 0.25);
-  
-    --dark-green: rgba(0, 100, 0, 0.25);
-    --darker-green: rgba(0, 70, 0, 0.25);
-    --bright-green: rgba(144, 238, 144, 0.25);
-    --green: rgba(0, 128, 0, 0.25);
-  
-    --dark-yellow: rgba(204, 204, 0, 0.25);
-    --darker-yellow: rgba(153, 153, 0, 0.25);
-    --bright-yellow: rgba(255, 255, 102, 0.25);
-    --yellow: rgba(255, 255, 0, 0.25);
-  
-    --dark-orange: rgba(255, 140, 0, 0.25);
-    --darker-orange: rgba(255, 110, 0, 0.25);
-    --bright-orange: rgba(255, 165, 79, 0.25);
-    --orange: rgba(255, 165, 0, 0.25);
-  
-    --dark-purple: rgba(75, 0, 130, 0.25);
-    --darker-purple: rgba(55, 0, 100, 0.25);
-    --bright-purple: rgba(216, 191, 216, 0.25);
-    --purple: rgba(128, 0, 128, 0.25);
-  
-    --dark-pink: rgba(219, 112, 147, 0.25);
-    --darker-pink: rgba(199, 21, 133, 0.25);
-    --bright-pink: rgba(255, 182, 193, 0.25);
-    --pink: rgba(255, 192, 203, 0.25);
-  
-    --dark-brown: rgba(139, 69, 19, 0.25);
-    --darker-brown: rgba(101, 53, 15, 0.25);
-    --bright-brown: rgba(205, 133, 63, 0.25);
-    --brown: rgba(165, 42, 42, 0.25);
-  
-    --dark-gray: rgba(105, 105, 105, 0.25);
-    --darker-gray: rgba(70, 70, 70, 0.25);
-    --bright-gray: rgba(190, 190, 190, 0.25);
-    --gray: rgba(128, 128, 128, 0.25);
-  }
-  
-
 body {
     margin: auto;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: auto;
-    background: linear-gradient(315deg, var(--darker-blue) 3%, var(--dark-blue) 38%, var(--bright-blue) 68%, var(--blue) 98%);
+    background: black;
     animation: gradient 15s ease infinite;
     background-size: 400% 400%;
     background-attachment: fixed;

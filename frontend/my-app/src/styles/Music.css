@@ -1,0 +1,98 @@
+/* Full Page Structure */
+.music-page {
+  width: 100%;
+  height: calc(100vh - 80px); /* Adjust height for fixed audio player and navbar */
+  background-color: rgba(20, 20, 20, 0.95); /* Dark background */
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  padding-bottom: 100px;
+  box-sizing: border-box;
+  overflow-y: auto; /* Allow scrolling if the list is long */
+}
+
+/* Header Section */
+.music-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.music-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* Song Grid */
+.song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Responsive grid */
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px; /* Center content and limit width */
+}
+
+/* Song Card */
+.song-card {
+  background-color: rgba(68, 68, 68, 0.5); /* Semi-transparent background */
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s, background 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add depth */
+}
+
+.song-card:hover {
+  transform: translateY(-5px); /* Lift effect */
+  background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter on hover */
+}
+
+.song-card.active {
+  background-color: rgba(255, 255, 255, 0.3); /* Highlight active song */
+  font-weight: bold;
+}
+
+/* Thumbnail */
+.song-thumbnail {
+  width: 100px; /* Larger thumbnails */
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px; /* Rounded corners */
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add depth */
+}
+
+/* Song Details */
+.song-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.song-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 5px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.song-artist {
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+/* No Songs Message */
+.no-songs-message {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #ccc;
+  margin-top: 50px;
+}

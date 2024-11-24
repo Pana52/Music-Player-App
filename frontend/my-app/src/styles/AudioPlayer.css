@@ -1,26 +1,47 @@
-.audio-player {
-    width: 100%;
-    max-width: 80%;
-    margin: 20px auto;
-    padding: 10px;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.15); /* Semi-transparent background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19); /* Subtle shadow for depth */
-    backdrop-filter: blur(10px); /* Glass effect */
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Light border for the glassy effect */
-    color: white; /* Text color */
-  }
-  
-  .audio-player .rhap_main {
-    color: white; /* Ensure control colors contrast with the background */
-  }
-  
-  .audio-player .rhap_button-clear {
-    background-color: transparent;
-  }
-  
-  .audio-player .rhap_time, .audio-player .rhap_progress-container {
-    color: white;
-  }
+/* styles/AudioPlayer.css */
 
-  
+/* Persistent Audio Player */
+.persistent-audio-player {
+  position: fixed;
+  bottom: 60px; /* Space above navigation bar */
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Above navigation */
+  background: rgba(255, 255, 255, 0.1); /* Transparent white for glass effect */
+  backdrop-filter: blur(10px); /* Apply blur for glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border for definition */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  color: white; /* Ensure text is visible */
+}
+
+/* Bottom Navigation Bar */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+  backdrop-filter: blur(10px); /* Apply blur for glass effect */
+  border-top: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border at the top */
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  z-index: 999; /* Below the audio player */
+  color: white; /* Ensure text is visible */
+}
+
+/* Navigation Links */
+.nav-item {
+  color: white; /* Ensure links are visible against dark background */
+  text-decoration: none;
+  font-size: 16px;
+  text-align: center;
+  padding: 0 10px;
+  transition: color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.nav-item:hover {
+  color: #ffa726; /* Bright orange hover effect */
+}

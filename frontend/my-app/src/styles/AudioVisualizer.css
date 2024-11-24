@@ -1,0 +1,19 @@
+.visualizer-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Fullscreen width */
+  height: 100vh; /* Fullscreen height */
+  z-index: -3; /* Place behind all elements */
+  pointer-events: none; /* Make it non-interactive */
+  background: transparent; /* Fully transparent background */
+  overflow: hidden; /* Ensure no overflow from the visualizer */
+  filter: blur(2px); /* Add slight blur for a softer glass effect */
+}
+
+.visualizer-container canvas {
+  pointer-events: none; /* Prevent canvas from intercepting interactions */
+  backdrop-filter: blur(5px); /* Enhance the glassy effect */
+  mix-blend-mode: lighten; /* Blend bars with background for a glossy look */
+  opacity: 0.8; /* Slight transparency for the bars */
+}
