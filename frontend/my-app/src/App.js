@@ -15,7 +15,17 @@ import AudioVisualizer from './AudioVisualizer';
 function AppContent() {
     const [songs, setSongs] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const { currentSong, setCurrentSong, audioRef } = useContext(AudioPlayerContext);
+    const {
+        audioRef,
+        currentSong,
+        handlePlay, // Add handlePlay
+        handlePause, // Add handlePause
+        adjustVolume,
+        setCurrentSong,
+        volume,
+    } = useContext(AudioPlayerContext);
+    
+    
     const location = useLocation();
 
     useEffect(() => {
@@ -77,13 +87,27 @@ function AppContent() {
             {/* Persistent Audio Player */}
             <ReactH5AudioPlayer
                 ref={audioRef}
-                src={currentSong ? `http://localhost:8000/api/songs/${encodeURIComponent(currentSong.filename)}` : null}
+                src={
+                    currentSong
+                        ? `http://localhost:8000/api/songs/${encodeURIComponent(currentSong.filename)}`
+                        : null
+                }
                 autoPlay={false}
-                volume={1.0} // Ensure volume is set
-                muted={false} // Ensure not muted
+                volume={volume} // Use the state value directly
+                muted={false}
                 controls
                 className="persistent-audio-player"
                 crossOrigin="anonymous"
+                onPlay={handlePlay}
+                onPause={handlePause}
+                onVolumeChange={(e) => {
+                    const sliderValue = e.target.volume; // Use the slider's linear value directly
+                    adjustVolume(sliderValue); // Pass the slider value as-is
+                    console.log('[DEBUG]: Slider Value:', sliderValue);
+                }}
+                onEnded={() => {
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                }}
             />
 
             <nav className="bottom-nav">

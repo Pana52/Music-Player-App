@@ -5,12 +5,58 @@
   background-color: rgba(20, 20, 20, 0.95); /* Dark background */
   color: white;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 20px;
+  padding: 50px;
   padding-bottom: 100px;
   box-sizing: border-box;
   overflow-y: auto; /* Allow scrolling if the list is long */
+}
+
+/* Artist Panel on the Left */
+.artist-panel {
+  width: 200px; /* Fixed width for the side panel */
+  background-color: rgba(40, 40, 40, 0.95); /* Darker background for panel */
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5); /* Add depth */
+  overflow-y: auto; /* Scroll if content overflows */
+  position: fixed; /* Stick to the left side */
+  top: 0;
+  left: 0;
+  bottom: 80px; /* Leave space for the audio player */
+  z-index: 100; /* Ensure it stays on top */
+}
+
+/* Adjust for the Side Panel */
+.song-grid-container {
+  margin-left: 200px; /* Leave space for the side panel */
+  flex: 1; /* Take the remaining space next to the side panel */
+  padding: 20px;
+  overflow-y: auto; /* Allow scrolling for the song grid */
+}
+
+/* Artist Button */
+.artist-button {
+  background-color: rgba(68, 68, 68, 0.5);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.3s;
+}
+
+.artist-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.artist-button.active {
+  background-color: rgba(255, 255, 255, 0.3); /* Highlight active artist */
+  font-weight: bold;
 }
 
 /* Header Section */
@@ -45,8 +91,11 @@
   cursor: pointer;
   transition: transform 0.3s, background 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add depth */
+  overflow: hidden; /* Prevent content from overflowing */
+  position: relative;
 }
 
+/* Ensure card content doesn't exceed its height */
 .song-card:hover {
   transform: translateY(-5px); /* Lift effect */
   background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter on hover */
@@ -74,19 +123,34 @@
   align-items: center;
 }
 
-.song-title {
+/* Song Title */
+.song-title, .song-artist {
   font-size: 1rem;
   font-weight: bold;
   margin: 5px 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+  text-align: center; /* Default alignment */
+  overflow: hidden; /* Hide overflowing text */
+  white-space: nowrap; /* Prevent wrapping */
+  text-overflow: ellipsis; /* Show ellipsis by default */
+  position: relative; /* Required for animation */
+  display: inline-block; /* Ensure proper animation display */
 }
 
-.song-artist {
-  font-size: 0.9rem;
-  color: #aaa;
+/* Overflowing Text Animation */
+.song-title.overflow:hover, .song-artist.overflow:hover {
+  text-align: left; /* Align overflowing text to the left */
+  animation: scroll-text 8s linear infinite alternate; /* Back-and-forth animation */
+  overflow: visible; /* Allow text to escape boundaries */
+}
+
+/* Scrolling Animation */
+@keyframes scroll-text {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%); /* Adjust based on expected text overflow */
+  }
 }
 
 /* No Songs Message */

@@ -75,7 +75,7 @@ function ArtistPage({ currentSong }) {
           <h2>Discography</h2>
           <div className="discography-grid">
             {artistDetails?.discography?.length > 0
-              ? artistDetails.discography.slice(0, 3).map((album, index) => (
+              ? artistDetails.discography.map((album, index) => (
                   <div key={index} className="album-cover">
                     <img
                       src={

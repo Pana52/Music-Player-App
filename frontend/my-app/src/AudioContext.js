@@ -1,82 +1,119 @@
-import React, { createContext, useRef, useState, useEffect } from 'react';
+import React, { createContext, useRef, useState, useEffect, useCallback } from 'react';
 
 export const AudioPlayerContext = createContext();
 
 export function AudioProvider({ children }) {
-  const audioRef = useRef(null);
-  const [currentSong, setCurrentSong] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(1.0); // Default volume
+    const audioRef = useRef(null);
+    const audioContextRef = useRef(null);
+    const mediaElementSourceRef = useRef(null);
+    const [currentSong, setCurrentSong] = useState(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [volume, setVolume] = useState(1.0);
+    const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Debugging helper
-  const debugLog = (message, data) => {
-    console.log(`[DEBUG]: ${message}`, data || '');
-  };
+    const debugLog = (message, data) => {
+        console.log(`[DEBUG]: ${message}`, data || '');
+    };
 
-  const playPauseAudio = () => {
-    if (audioRef.current?.audio.current) {
-      const audio = audioRef.current.audio.current;
-      if (isPlaying) {
-        debugLog('Pausing audio...');
-        audio.pause();
-      } else {
-        debugLog('Playing audio...');
-        audio.play().catch((error) => console.error('Error playing audio:', error));
-      }
-      setIsPlaying(!isPlaying);
-    } else {
-      debugLog('Audio element not available.');
-    }
-  };
+    // Debounce utility to prevent rapid function execution
+    const debounce = (func, delay) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), delay);
+        };
+    };
 
-  const adjustVolume = (sliderValue) => {
-    // Convert sliderValue (0-1) to linear volume
-    const linearVolume = Math.pow(sliderValue, 2);
-    setVolume(linearVolume);
-    if (audioRef.current?.audio.current) {
-      audioRef.current.audio.current.volume = linearVolume;
-      debugLog(`Volume adjusted: ${linearVolume}`);
-    }
-  };
-
-  useEffect(() => {
-    if (audioRef.current?.audio.current) {
-      const audioElement = audioRef.current.audio.current;
-
-      const forceDirectConnection = () => {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const mediaElementSource = audioContext.createMediaElementSource(audioElement);
-
-        // Connect directly to the destination (speakers)
-        mediaElementSource.connect(audioContext.destination);
-
-        debugLog('Forced audio connection to destination.');
-
-        if (audioContext.state === 'suspended') {
-          audioContext.resume().catch((err) =>
-            console.error('Error resuming AudioContext:', err)
-          );
+    const initializeAudioContext = useCallback(() => {
+        if (!audioContextRef.current) {
+            audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+            debugLog('AudioContext initialized.');
         }
-      };
 
-      forceDirectConnection();
-    }
-  }, [audioRef]);
+        const audioElement = audioRef.current?.audio.current;
+        if (audioElement && !mediaElementSourceRef.current) {
+            mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
+            mediaElementSourceRef.current.connect(audioContextRef.current.destination);
+            debugLog('MediaElementSource connected to destination.');
+        }
 
-  return (
-    <AudioPlayerContext.Provider
-      value={{
-        audioRef,
-        currentSong,
-        setCurrentSong,
-        isPlaying,
-        setIsPlaying,
-        playPauseAudio,
-        adjustVolume,
-        volume, // Expose volume state
-      }}
-    >
-      {children}
-    </AudioPlayerContext.Provider>
-  );
+        if (audioContextRef.current?.state === 'suspended') {
+            audioContextRef.current.resume().catch((err) =>
+                console.error('Error resuming AudioContext:', err)
+            );
+        }
+    }, []);
+
+    const adjustVolume = debounce((newVolume) => {
+      setVolume(newVolume); // Update the state directly
+      if (audioRef.current?.audio.current) {
+          audioRef.current.audio.current.volume = newVolume; // Sync the audio element's volume
+          debugLog(`Volume adjusted: ${newVolume}`);
+      }
+    }, 100); // Debounce delay of 100ms
+  
+    useEffect(() => {
+      if (audioRef.current?.audio.current) {
+          audioRef.current.audio.current.volume = volume; // Sync with initial state
+          debugLog(`Initial volume set: ${volume}`);
+      }
+    }, [volume]);
+  
+    useEffect(() => {
+        if (!hasInitialized && audioRef.current?.audio.current) {
+            const audioElement = audioRef.current.audio.current;
+
+            // Unpause and immediately pause to initialize the context
+            audioElement.play()
+                .then(() => {
+                    audioElement.pause();
+                    setHasInitialized(true);
+                    debugLog('Audio player initialized (unpaused and paused).');
+                })
+                .catch((err) => {
+                    console.warn('Failed to initialize audio player:', err);
+                });
+        }
+    }, [hasInitialized]);
+
+    // Ensure volume is synced with the initial state
+    useEffect(() => {
+        if (audioRef.current?.audio.current) {
+            audioRef.current.audio.current.volume = volume;
+            debugLog(`Initial volume set: ${volume}`);
+        }
+    }, [volume]);
+
+    const handlePlay = () => {
+        initializeAudioContext();
+        setIsPlaying(true);
+        debugLog('Audio started.');
+    };
+
+    const handlePause = () => {
+        if (audioContextRef.current?.state !== 'closed') {
+            setIsPlaying(false);
+            debugLog('Audio paused.');
+        } else {
+            debugLog('AudioContext is already closed. Skipping pause handling.');
+        }
+    };
+
+    return (
+        <AudioPlayerContext.Provider
+            value={{
+                audioRef,
+                currentSong,
+                setCurrentSong,
+                isPlaying,
+                setIsPlaying,
+                handlePlay,
+                handlePause,
+                adjustVolume,
+                volume,
+            }}
+        >
+            {children}
+        </AudioPlayerContext.Provider>
+    );
 }
