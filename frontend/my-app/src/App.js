@@ -89,11 +89,11 @@ function AppContent() {
                 ref={audioRef}
                 src={
                     currentSong
-                        ? `http://localhost:8000/api/songs/${encodeURIComponent(currentSong.filename)}`
+                        ? `http://localhost:8000/media/music/${encodeURIComponent(currentSong.filename)}`
                         : null
                 }
                 autoPlay={false}
-                volume={volume} // Use the state value directly
+                volume={volume}
                 muted={false}
                 controls
                 className="persistent-audio-player"
@@ -101,13 +101,15 @@ function AppContent() {
                 onPlay={handlePlay}
                 onPause={handlePause}
                 onVolumeChange={(e) => {
-                    const sliderValue = e.target.volume; // Use the slider's linear value directly
-                    adjustVolume(sliderValue); // Pass the slider value as-is
+                    const sliderValue = e.target.volume;
+                    adjustVolume(sliderValue);
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
                 onEnded={() => {
                     setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
                 }}
+                /*print all the contents of the that song from the Song table */
+                
             />
 
             <nav className="bottom-nav">

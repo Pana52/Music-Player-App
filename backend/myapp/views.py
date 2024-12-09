@@ -1,14 +1,16 @@
-from django.shortcuts import render
+import os
+from urllib.parse import unquote
+from rest_framework import viewsets
 from rest_framework.response import Response
-from .models import Song
-from .serializers import SongSerializer
+from rest_framework.decorators import api_view
+from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse  # Import JsonResponse here
 from django.conf import settings
-from rest_framework.decorators import api_view
-import os
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, TALB
 from .process_artist_data import process_artist_data
+from .models import Artist, Genre, Album, Song
+from .serializers import ArtistSerializer, GenreSerializer, AlbumSerializer, SongSerializer
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -51,14 +53,14 @@ def list_music_files(request):
     return JsonResponse({'files': files})
 
 
-
 @api_view(['GET'])
-def get_music_file(request, filename):  
-    file_path = os.path.join(settings.MEDIA_ROOT, 'music', filename)
+def get_music_file(request, filename):
+    decoded_filename = unquote(filename)
+    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as file:
             response = HttpResponse(file.read(), content_type="audio/mpeg")
-            response['Content-Disposition'] = f'inline; filename={filename}'
+            response['Content-Disposition'] = f'inline; filename={decoded_filename}'
             return response
     else:
         return JsonResponse({'error': 'File not found'}, status=404)
@@ -84,3 +86,20 @@ def artist_details(request, artist_name):
         return JsonResponse(details, safe=False)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
+
+class ArtistViewSet(viewsets.ModelViewSet):
+    queryset = Artist.objects.all()
+    serializer_class = ArtistSerializer
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all()
+    serializer_class = AlbumSerializer
+
+class SongViewSet(viewsets.ModelViewSet):
+    queryset = Song.objects.all()
+    serializer_class = SongSerializer

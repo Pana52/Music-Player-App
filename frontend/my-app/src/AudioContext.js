@@ -38,9 +38,15 @@ export function AudioProvider({ children }) {
         }
 
         if (audioContextRef.current?.state === 'suspended') {
-            audioContextRef.current.resume().catch((err) =>
-                console.error('Error resuming AudioContext:', err)
-            );
+            audioContextRef.current.resume().catch((err) => {
+                console.error('Error resuming AudioContext:', err);
+                if (audioContextRef.current?.state === 'closed') {
+                    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                    mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
+                    mediaElementSourceRef.current.connect(audioContextRef.current.destination);
+                    debugLog('AudioContext re-initialized after being closed.');
+                }
+            });
         }
     }, []);
 
