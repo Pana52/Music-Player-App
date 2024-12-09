@@ -9,80 +9,54 @@ export function AudioProvider({ children }) {
     const [currentSong, setCurrentSong] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(1.0);
-    const [hasInitialized, setHasInitialized] = useState(false);
+    const [isVisualizerEnabled, setIsVisualizerEnabled] = useState(false);
 
     const debugLog = (message, data) => {
         console.log(`[DEBUG]: ${message}`, data || '');
     };
 
-    // Debounce utility to prevent rapid function execution
-    const debounce = (func, delay) => {
-        let timeout;
-        return (...args) => {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func(...args), delay);
-        };
-    };
-
     const initializeAudioContext = useCallback(() => {
-        if (!audioContextRef.current) {
-            audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-            debugLog('AudioContext initialized.');
-        }
+        try {
+            if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+                audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                debugLog('AudioContext initialized or re-initialized.');
+            }
 
-        const audioElement = audioRef.current?.audio.current;
-        if (audioElement && !mediaElementSourceRef.current) {
-            mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
-            mediaElementSourceRef.current.connect(audioContextRef.current.destination);
-            debugLog('MediaElementSource connected to destination.');
-        }
+            const audioElement = audioRef.current?.audio.current;
+            if (audioElement && !mediaElementSourceRef.current) {
+                mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
+                mediaElementSourceRef.current.connect(audioContextRef.current.destination);
+                debugLog('MediaElementSource connected to destination.');
+            }
 
-        if (audioContextRef.current?.state === 'suspended') {
-            audioContextRef.current.resume().catch((err) => {
-                console.error('Error resuming AudioContext:', err);
-                if (audioContextRef.current?.state === 'closed') {
-                    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-                    mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
-                    mediaElementSourceRef.current.connect(audioContextRef.current.destination);
-                    debugLog('AudioContext re-initialized after being closed.');
-                }
-            });
+            if (audioContextRef.current?.state === 'suspended') {
+                audioContextRef.current.resume().catch((err) => {
+                    console.error('Error resuming AudioContext:', err);
+                    if (audioContextRef.current?.state === 'closed') {
+                        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+                        mediaElementSourceRef.current = audioContextRef.current.createMediaElementSource(audioElement);
+                        mediaElementSourceRef.current.connect(audioContextRef.current.destination);
+                        debugLog('AudioContext re-initialized after being closed.');
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error initializing AudioContext:', error);
         }
     }, []);
 
-    const adjustVolume = debounce((newVolume) => {
-      setVolume(newVolume); // Update the state directly
-      if (audioRef.current?.audio.current) {
-          audioRef.current.audio.current.volume = newVolume; // Sync the audio element's volume
-          debugLog(`Volume adjusted: ${newVolume}`);
-      }
-    }, 100); // Debounce delay of 100ms
-  
-    useEffect(() => {
-      if (audioRef.current?.audio.current) {
-          audioRef.current.audio.current.volume = volume; // Sync with initial state
-          debugLog(`Initial volume set: ${volume}`);
-      }
-    }, [volume]);
-  
-    useEffect(() => {
-        if (!hasInitialized && audioRef.current?.audio.current) {
-            const audioElement = audioRef.current.audio.current;
-
-            // Unpause and immediately pause to initialize the context
-            audioElement.play()
-                .then(() => {
-                    audioElement.pause();
-                    setHasInitialized(true);
-                    debugLog('Audio player initialized (unpaused and paused).');
-                })
-                .catch((err) => {
-                    console.warn('Failed to initialize audio player:', err);
-                });
+    const adjustVolume = useCallback((newVolume) => {
+        setVolume(newVolume);
+        if (audioRef.current?.audio.current) {
+            audioRef.current.audio.current.volume = newVolume;
+            debugLog(`Volume adjusted: ${newVolume}`);
         }
-    }, [hasInitialized]);
+    }, []);
 
-    // Ensure volume is synced with the initial state
+    const toggleVisualizer = () => {
+        setIsVisualizerEnabled((prev) => !prev);
+    };
+
     useEffect(() => {
         if (audioRef.current?.audio.current) {
             audioRef.current.audio.current.volume = volume;
@@ -90,8 +64,26 @@ export function AudioProvider({ children }) {
         }
     }, [volume]);
 
+    useEffect(() => {
+        const handleUserGesture = () => {
+            initializeAudioContext();
+            window.removeEventListener('click', handleUserGesture);
+            window.removeEventListener('keydown', handleUserGesture);
+        };
+
+        window.addEventListener('click', handleUserGesture);
+        window.addEventListener('keydown', handleUserGesture);
+
+        return () => {
+            window.removeEventListener('click', handleUserGesture);
+            window.removeEventListener('keydown', handleUserGesture);
+        };
+    }, [initializeAudioContext]);
+
     const handlePlay = () => {
-        initializeAudioContext();
+        if (audioContextRef.current?.state === 'suspended') {
+            initializeAudioContext();
+        }
         setIsPlaying(true);
         debugLog('Audio started.');
     };
@@ -105,6 +97,16 @@ export function AudioProvider({ children }) {
         }
     };
 
+    const handleNavigation = useCallback(() => {
+        try {
+            if (audioContextRef.current?.state === 'closed') {
+                initializeAudioContext();
+            }
+        } catch (error) {
+            console.error('Error during navigation:', error);
+        }
+    }, [initializeAudioContext]);
+
     return (
         <AudioPlayerContext.Provider
             value={{
@@ -117,6 +119,10 @@ export function AudioProvider({ children }) {
                 handlePause,
                 adjustVolume,
                 volume,
+                handleNavigation,
+                initializeAudioContext, // Expose initializeAudioContext
+                isVisualizerEnabled,
+                toggleVisualizer,
             }}
         >
             {children}

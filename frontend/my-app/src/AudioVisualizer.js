@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useContext } from 'react';
 import AudioMotionAnalyzer from 'audiomotion-analyzer';
 import './styles/AudioVisualizer.css';
+import { AudioPlayerContext } from './AudioContext';
 
 const AudioVisualizer = ({
     audioRef,
@@ -14,60 +15,69 @@ const AudioVisualizer = ({
         { pos: 0.8, color: 'rgba(0, 0, 255, 0.3)' }, // Darker bottom
         { pos: 1, color: 'rgba(0, 0, 0, 0.1)' }, // Transparent bottom
     ],
+    isVisible
 }) => {
     const visualizerContainerRef = useRef(null);
     const audioMotionRef = useRef(null);
+    const { initializeAudioContext } = useContext(AudioPlayerContext);
 
     useEffect(() => {
-        const initializeVisualizer = () => {
-            if (visualizerContainerRef.current && audioRef?.current?.audio.current) {
-                if (audioMotionRef.current) {
-                    audioMotionRef.current.destroy();
+        if (isVisible) {
+            try {
+                initializeAudioContext();
+                const initializeVisualizer = () => {
+                    if (visualizerContainerRef.current && audioRef?.current?.audio.current) {
+                        if (audioMotionRef.current) {
+                            audioMotionRef.current.destroy();
+                        }
+
+                        // Create the visualizer instance
+                        audioMotionRef.current = new AudioMotionAnalyzer(visualizerContainerRef.current, {
+                            source: audioRef.current.audio.current,
+                            connectSpeakers: false,
+                            fftSize: fftSize,
+                            barWidth: barWidth,
+                            barSpacing: barSpacing,
+                            mode: 2, // Centered bars
+                            showScaleX: false,
+                            showScaleY: false,
+                            showBgColor: true,
+                            bgAlpha: 0,
+                            overlay: true,
+                            fsWidth: window.innerWidth,
+                            fsHeight: window.innerHeight,
+                            showPeaks: false
+                        });
+                        
+
+                        console.log('[DEBUG]: Visualizer initialized.');
+
+                        // Register and apply gradient
+                        audioMotionRef.current.registerGradient('glass-gradient', {
+                            colorStops: gradientColors,
+                            direction: 'vertical',
+                        });
+                        audioMotionRef.current.setOptions({ gradient: 'glass-gradient' });
+                    } else {
+                        console.log('[DEBUG]: Visualizer container or audio element not ready.');
+                    }
+                };
+
+                if (audioRef?.current?.audio.current) {
+                    initializeVisualizer();
                 }
 
-                // Create the visualizer instance
-                audioMotionRef.current = new AudioMotionAnalyzer(visualizerContainerRef.current, {
-                    source: audioRef.current.audio.current,
-                    connectSpeakers: false,
-                    fftSize: fftSize,
-                    barWidth: barWidth,
-                    barSpacing: barSpacing,
-                    mode: 2, // Centered bars
-                    showScaleX: false,
-                    showScaleY: false,
-                    showBgColor: true,
-                    bgAlpha: 0,
-                    overlay: true,
-                    fsWidth: window.innerWidth,
-                    fsHeight: window.innerHeight,
-                    showPeaks: false
-                });
-                
-
-                console.log('[DEBUG]: Visualizer initialized.');
-
-                // Register and apply gradient
-                audioMotionRef.current.registerGradient('glass-gradient', {
-                    colorStops: gradientColors,
-                    direction: 'vertical',
-                });
-                audioMotionRef.current.setOptions({ gradient: 'glass-gradient' });
-            } else {
-                console.log('[DEBUG]: Visualizer container or audio element not ready.');
+                return () => {
+                    if (audioMotionRef.current) {
+                        console.log('[DEBUG]: Destroying visualizer instance.');
+                        audioMotionRef.current.destroy();
+                    }
+                };
+            } catch (error) {
+                console.error('Error initializing visualizer:', error);
             }
-        };
-
-        if (audioRef?.current?.audio.current) {
-            initializeVisualizer();
         }
-
-        return () => {
-            if (audioMotionRef.current) {
-                console.log('[DEBUG]: Destroying visualizer instance.');
-                audioMotionRef.current.destroy();
-            }
-        };
-    }, [audioRef, fftSize, barWidth, barSpacing, gradientColors]);
+    }, [isVisible, initializeAudioContext, audioRef, fftSize, barWidth, barSpacing, gradientColors]);
 
     return (
         <div

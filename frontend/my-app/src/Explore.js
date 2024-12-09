@@ -1,21 +1,12 @@
 import React, { useState } from 'react';
 import './styles/Explore.css';
 
-// Remove dotenv import and configuration
-// import dotenv from 'dotenv';
-// dotenv.config();
-
 const CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
-
-console.log('CLIENT_ID:', CLIENT_ID);
-console.log('CLIENT_SECRET:', CLIENT_SECRET);
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.error('Missing Spotify API credentials');
 }
-
-const DEFAULT_IMAGE = 'default-album-cover.png';
 
 function Explore() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,9 +80,18 @@ function Explore() {
         <h2 className="explore-subtitle">Artists</h2>
         <div className="explore-cards">
           {artistResults.map((artist, index) => (
-            <div key={index} className="explore-card">
-              <img src={artist.images[0]?.url || DEFAULT_IMAGE} alt={artist.name} className="explore-image" />
-              <p>{artist.name}</p>
+            <div
+              key={index}
+              className="explore-card"
+            >
+              <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                <img 
+                  src={artist.images[0]?.url || 'default-album-cover.png'} 
+                  alt={artist.name} 
+                  className="explore-image" 
+                />
+                <p>{artist.name}</p>
+              </a>
             </div>
           ))}
         </div>
@@ -101,10 +101,19 @@ function Explore() {
         <h2 className="explore-subtitle">Songs</h2>
         <div className="explore-cards">
           {songResults.map((song, index) => (
-            <div key={index} className="explore-card">
-              <img src={song.album.images[0]?.url || DEFAULT_IMAGE} alt={song.name} className="explore-image" />
-              <p>{song.name}</p>
-              <p>{song.artists[0].name}</p>
+            <div
+              key={index}
+              className="explore-card"
+            >
+              <a href={song.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                <img 
+                  src={song.album.images[0]?.url || 'default-album-cover.png'} 
+                  alt={song.name} 
+                  className="explore-image" 
+                />
+                <p>{song.name}</p>
+                <p>{song.artists[0].name}</p>
+              </a>
             </div>
           ))}
         </div>

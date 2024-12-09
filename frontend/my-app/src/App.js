@@ -18,14 +18,16 @@ function AppContent() {
     const {
         audioRef,
         currentSong,
-        handlePlay, // Add handlePlay
-        handlePause, // Add handlePause
+        handlePlay,
+        handlePause,
         adjustVolume,
         setCurrentSong,
         volume,
+        handleNavigation,
+        isVisualizerEnabled,
+        toggleVisualizer,
     } = useContext(AudioPlayerContext);
-    
-    
+
     const location = useLocation();
 
     useEffect(() => {
@@ -46,6 +48,10 @@ function AppContent() {
             console.log('[DEBUG]: Invalid currentIndex or no songs available.');
         }
     }, [currentIndex, songs, setCurrentSong]);
+
+    useEffect(() => {
+        handleNavigation();
+    }, [location, handleNavigation]);
 
     return (
         <div className="App">
@@ -81,7 +87,7 @@ function AppContent() {
             {/* Audio Visualizer */}
             <AudioVisualizer
                 audioRef={audioRef}
-                isVisible={location.pathname === '/'}
+                isVisible={isVisualizerEnabled}
             />
 
             {/* Persistent Audio Player */}
@@ -108,29 +114,31 @@ function AppContent() {
                 onEnded={() => {
                     setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
                 }}
-                /*print all the contents of the that song from the Song table */
-                
+                customAdditionalControls={[
+                    <button key="toggle-visualizer" onClick={toggleVisualizer}>
+                        {isVisualizerEnabled ? 'Disable Visualizer' : 'Enable Visualizer'}
+                    </button>
+                ]}
             />
 
             <nav className="bottom-nav">
-                <Link to="/" className="nav-item">Home</Link>
-                <Link to="/artist" className="nav-item">Artist</Link>
-                <Link to="/music" className="nav-item">Music</Link>
-                <Link to="/settings" className="nav-item">Settings</Link>
-                <Link to="/explore" className="nav-item">Explore</Link>
+                <Link to="/" className="nav-item" onClick={handleNavigation}>Home</Link>
+                <Link to="/artist" className="nav-item" onClick={handleNavigation}>Artist</Link>
+                <Link to="/music" className="nav-item" onClick={handleNavigation}>Music</Link>
+                <Link to="/settings" className="nav-item" onClick={handleNavigation}>Settings</Link>
+                <Link to="/explore" className="nav-item" onClick={handleNavigation}>Explore</Link>
             </nav>
         </div>
     );
 }
 
-
 function App() {
     return (
-        <AudioProvider>
-            <Router>
+        <Router>
+            <AudioProvider>
                 <AppContent />
-            </Router>
-        </AudioProvider>
+            </AudioProvider>
+        </Router>
     );
 }
 
