@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './styles/App.css';
 import './styles/backgrounds/Waves.css';
@@ -13,8 +13,6 @@ import Explore from './Explore';
 import AudioVisualizer from './AudioVisualizer';
 
 function AppContent() {
-    const [songs, setSongs] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
     const {
         audioRef,
         currentSong,
@@ -26,19 +24,29 @@ function AppContent() {
         handleNavigation,
         isVisualizerEnabled,
         toggleVisualizer,
+        defaultVolume,
+        setDefaultVolume,
+        volumeScale,
+        setVolumeScale,
+        seekInterval,
+        setSeekInterval,
+        crossfade,
+        setCrossfade,
+        crossfadeDuration,
+        setCrossfadeDuration,
+        gaplessPlayback,
+        setGaplessPlayback,
+        handleTimeUpdate,
+        songs,
+        currentIndex,
+        setCurrentIndex,
     } = useContext(AudioPlayerContext);
 
     const location = useLocation();
 
     useEffect(() => {
-        fetch('http://localhost:8000/api/songs/')
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('[DEBUG]: Fetched songs from API:', data);
-                setSongs(data.files || []);
-            })
-            .catch((error) => console.error('Error fetching songs:', error));
-    }, []);
+        handleNavigation();
+    }, [location, handleNavigation]);
 
     useEffect(() => {
         if (songs.length > 0 && currentIndex >= 0 && currentIndex < songs.length) {
@@ -50,8 +58,15 @@ function AppContent() {
     }, [currentIndex, songs, setCurrentSong]);
 
     useEffect(() => {
-        handleNavigation();
-    }, [location, handleNavigation]);
+        if (audioRef.current) {
+            const audioElement = audioRef.current.audio.current;
+            audioElement.addEventListener('timeupdate', handleTimeUpdate);
+
+            return () => {
+                audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+            };
+        }
+    }, [handleTimeUpdate, audioRef]);
 
     return (
         <div className="App">
@@ -80,7 +95,20 @@ function AppContent() {
                         />
                     }
                 />
-                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings" element={<Settings
+                    defaultVolume={defaultVolume}
+                    setDefaultVolume={setDefaultVolume}
+                    volumeScale={volumeScale}
+                    setVolumeScale={setVolumeScale}
+                    seekInterval={seekInterval}
+                    setSeekInterval={setSeekInterval}
+                    crossfade={crossfade}
+                    setCrossfade={setCrossfade}
+                    crossfadeDuration={crossfadeDuration}
+                    setCrossfadeDuration={setCrossfadeDuration}
+                    gaplessPlayback={gaplessPlayback}
+                    setGaplessPlayback={setGaplessPlayback}
+                />} />
                 <Route path="/explore" element={<Explore />} />
             </Routes>
 
@@ -92,6 +120,7 @@ function AppContent() {
 
             {/* Persistent Audio Player */}
             <ReactH5AudioPlayer
+                key={currentSong ? currentSong.filename : 'default'}
                 ref={audioRef}
                 src={
                     currentSong
@@ -112,13 +141,21 @@ function AppContent() {
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
                 onEnded={() => {
-                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                    if (!crossfade) {
+                        if (gaplessPlayback) {
+                            setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                        }
+                    }
                 }}
                 customAdditionalControls={[
                     <button key="toggle-visualizer" onClick={toggleVisualizer}>
                         {isVisualizerEnabled ? 'Disable Visualizer' : 'Enable Visualizer'}
                     </button>
                 ]}
+                progressJumpSteps={{
+                    backward: seekInterval * 1000,
+                    forward: seekInterval * 1000,
+                }}
             />
 
             <nav className="bottom-nav">
