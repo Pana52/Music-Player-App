@@ -4,12 +4,14 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import render
-from django.http import JsonResponse, HttpResponse  # Import JsonResponse here
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, TALB
 from .models import Artist, Genre, Album, Song
 from .serializers import ArtistSerializer, GenreSerializer, AlbumSerializer, SongSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.views import APIView
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -36,7 +38,6 @@ def list_music_files(request):
 
     return JsonResponse({'files': files})
 
-
 @api_view(['GET'])
 def get_music_file(request, filename):
     decoded_filename = unquote(filename)
@@ -49,19 +50,39 @@ def get_music_file(request, filename):
     else:
         return JsonResponse({'error': 'File not found'}, status=404)
 
+@api_view(['POST'])
+def upload_music_file(request):
+    if 'file' not in request.FILES:
+        return JsonResponse({'error': 'No file provided'}, status=400)
 
+    file = request.FILES['file']
+    file_path = os.path.join(settings.MEDIA_ROOT, 'music', file.name)
+
+    with open(file_path, 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
+
+    return JsonResponse({'message': 'File uploaded successfully'})
+
+@api_view(['DELETE'])
+def delete_music_file(request, filename):
+    decoded_filename = unquote(filename)
+    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return JsonResponse({'message': 'File deleted successfully'})
+    else:
+        return JsonResponse({'error': 'File not found'}, status=404)
 
 @api_view(['GET'])
 def status_view(request):
     return Response({'status': 'Django Backend Running'})
-
 
 @api_view(['GET'])
 def song_list(request):
     songs = Song.objects.all()
     serializer = SongSerializer(songs, many=True)
     return Response(serializer.data)
-
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()

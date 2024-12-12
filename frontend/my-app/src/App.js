@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './styles/App.css';
 import './styles/backgrounds/Waves.css';
@@ -8,11 +8,13 @@ import { AudioPlayerContext, AudioProvider } from './AudioContext';
 import Home from './HomePage';
 import Music from './MusicPage';
 import SideBar from './ArtistPage';
-import Settings from './Settings';
 import Explore from './Explore';
 import AudioVisualizer from './AudioVisualizer';
+import Settings from './Settings';
 
 function AppContent() {
+    const [songs, setSongs] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
     const {
         audioRef,
         currentSong,
@@ -24,29 +26,20 @@ function AppContent() {
         handleNavigation,
         isVisualizerEnabled,
         toggleVisualizer,
-        defaultVolume,
-        setDefaultVolume,
-        volumeScale,
-        setVolumeScale,
-        seekInterval,
-        setSeekInterval,
-        crossfade,
-        setCrossfade,
-        crossfadeDuration,
-        setCrossfadeDuration,
-        gaplessPlayback,
-        setGaplessPlayback,
-        handleTimeUpdate,
-        songs,
-        currentIndex,
-        setCurrentIndex,
     } = useContext(AudioPlayerContext);
 
     const location = useLocation();
+    const isHomePage = location.pathname === '/';
 
     useEffect(() => {
-        handleNavigation();
-    }, [location, handleNavigation]);
+        fetch('http://localhost:8000/api/songs/')
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('[DEBUG]: Fetched songs from API:', data);
+                setSongs(data.files || []);
+            })
+            .catch((error) => console.error('Error fetching songs:', error));
+    }, []);
 
     useEffect(() => {
         if (songs.length > 0 && currentIndex >= 0 && currentIndex < songs.length) {
@@ -58,15 +51,8 @@ function AppContent() {
     }, [currentIndex, songs, setCurrentSong]);
 
     useEffect(() => {
-        if (audioRef.current) {
-            const audioElement = audioRef.current.audio.current;
-            audioElement.addEventListener('timeupdate', handleTimeUpdate);
-
-            return () => {
-                audioElement.removeEventListener('timeupdate', handleTimeUpdate);
-            };
-        }
-    }, [handleTimeUpdate, audioRef]);
+        handleNavigation();
+    }, [location, handleNavigation]);
 
     return (
         <div className="App">
@@ -95,21 +81,8 @@ function AppContent() {
                         />
                     }
                 />
-                <Route path="/settings" element={<Settings
-                    defaultVolume={defaultVolume}
-                    setDefaultVolume={setDefaultVolume}
-                    volumeScale={volumeScale}
-                    setVolumeScale={setVolumeScale}
-                    seekInterval={seekInterval}
-                    setSeekInterval={setSeekInterval}
-                    crossfade={crossfade}
-                    setCrossfade={setCrossfade}
-                    crossfadeDuration={crossfadeDuration}
-                    setCrossfadeDuration={setCrossfadeDuration}
-                    gaplessPlayback={gaplessPlayback}
-                    setGaplessPlayback={setGaplessPlayback}
-                />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/settings" element={<Settings />} />
             </Routes>
 
             {/* Audio Visualizer */}
@@ -120,7 +93,6 @@ function AppContent() {
 
             {/* Persistent Audio Player */}
             <ReactH5AudioPlayer
-                key={currentSong ? currentSong.filename : 'default'}
                 ref={audioRef}
                 src={
                     currentSong
@@ -131,7 +103,7 @@ function AppContent() {
                 volume={volume}
                 muted={false}
                 controls
-                className="persistent-audio-player"
+                className={`persistent-audio-player ${isHomePage ? '' : 'hidden'}`}
                 crossOrigin="anonymous"
                 onPlay={handlePlay}
                 onPause={handlePause}
@@ -141,29 +113,21 @@ function AppContent() {
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
                 onEnded={() => {
-                    if (!crossfade) {
-                        if (gaplessPlayback) {
-                            setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
-                        }
-                    }
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
                 }}
                 customAdditionalControls={[
                     <button key="toggle-visualizer" onClick={toggleVisualizer}>
                         {isVisualizerEnabled ? 'Disable Visualizer' : 'Enable Visualizer'}
                     </button>
                 ]}
-                progressJumpSteps={{
-                    backward: seekInterval * 1000,
-                    forward: seekInterval * 1000,
-                }}
             />
 
             <nav className="bottom-nav">
                 <Link to="/" className="nav-item" onClick={handleNavigation}>Home</Link>
                 <Link to="/artist" className="nav-item" onClick={handleNavigation}>Artist</Link>
                 <Link to="/music" className="nav-item" onClick={handleNavigation}>Music</Link>
-                <Link to="/settings" className="nav-item" onClick={handleNavigation}>Settings</Link>
                 <Link to="/explore" className="nav-item" onClick={handleNavigation}>Explore</Link>
+                <Link to="/settings" className="nav-item" onClick={handleNavigation}>Settings</Link>
             </nav>
         </div>
     );

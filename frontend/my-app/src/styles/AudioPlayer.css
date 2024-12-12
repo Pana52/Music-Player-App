@@ -76,3 +76,25 @@
 .nav-item:hover {
   color: #ffa726; /* Bright orange hover effect */
 }
+
+.hidden {
+  display: none;
+}
+
+.unobtainable {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.persistent-audio-player.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.visualizer-container {
+  position: fixed;
+  top: 0;
+  bottom: 60px; /* Space above navigation bar */
+  width: 100%; /* Cover the entire width */
+  z-index: 998; /* Below the audio player */
+}

@@ -5,36 +5,68 @@
   background-color: rgba(20, 20, 20, 0.95); /* Dark background */
   color: white;
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-direction: row; /* Ensure elements are in a row */
+  align-items: flex-start; /* Align items to the top */
   padding: 50px;
   padding-bottom: 100px;
   box-sizing: border-box;
   overflow-y: auto; /* Allow scrolling if the list is long */
+  padding-top: 100px; /* Add padding to avoid overlap with fixed header */
 }
 
 /* Artist Panel on the Left */
 .artist-panel {
-  width: 200px; /* Fixed width for the side panel */
+  width: 25%; /* Adjust width to occupy less space */
   background-color: rgba(40, 40, 40, 0.95); /* Darker background for panel */
   display: flex;
   flex-direction: column;
   padding: 20px;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5); /* Add depth */
   overflow-y: auto; /* Scroll if content overflows */
-  position: fixed; /* Stick to the left side */
-  top: 0;
+  position: fixed; /* Fix positioning */
+  top: 100px; /* Adjust top to avoid overlap with header */
   left: 0;
   bottom: 80px; /* Leave space for the audio player */
-  z-index: 100; /* Ensure it stays on top */
+  z-index: 102; /* Ensure it stays on top of other elements */
+}
+
+/* File Input Styling */
+.artist-panel input[type="file"] {
+  background-color: rgba(68, 68, 68, 0.5);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.3s;
+}
+
+.artist-panel input[type="file"]::file-selector-button {
+  background-color: rgba(68, 68, 68, 0.5);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.artist-panel input[type="file"]::file-selector-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Adjust for the Side Panel */
 .song-grid-container {
-  margin-left: 200px; /* Leave space for the side panel */
+  width: 75%; /* Occupy the remaining space */
   flex: 1; /* Take the remaining space next to the side panel */
   padding: 20px;
+  margin-left: 30%; /* Adjust for the side panel */
   overflow-y: auto; /* Allow scrolling for the song grid */
+  display: flex;
+  justify-content: center; /* Center the grid container */
+  align-items: center; /* Center items vertically */
 }
 
 /* Artist Button */
@@ -59,10 +91,34 @@
   font-weight: bold;
 }
 
+/* Import Button Styling */
+.import-button {
+  background-color: rgba(68, 68, 68, 0.5);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.3s;
+}
+
+.import-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Header Section */
 .music-header {
   text-align: center;
   margin-bottom: 20px;
+  width: 100%; /* Ensure header takes full width */
+  position: fixed; /* Fix header at the top */
+  top: 0;
+  left: 0;
+  background-color: rgba(20, 20, 20, 0.95); /* Match page background */
+  z-index: 101; /* Ensure it stays above other elements */
+  padding: 20px 0; /* Add padding for better spacing */
 }
 
 .music-header h1 {
@@ -77,13 +133,14 @@
   gap: 20px;
   width: 100%;
   max-width: 1200px; /* Center content and limit width */
+  justify-items: center; /* Center the grid items */
+  align-items: center; /* Center items vertically */
 }
 
 /* Song Card */
 .song-card {
   background-color: rgba(68, 68, 68, 0.5); /* Semi-transparent background */
   border-radius: 10px;
-  padding: 15px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,12 +150,37 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add depth */
   overflow: hidden; /* Prevent content from overflowing */
   position: relative;
+  width: 200px; /* Fixed width */
+  height: 250px; /* Fixed height */
+  margin: 10px; /* Add margin to ensure space between cards */
 }
 
-/* Ensure card content doesn't exceed its height */
+.song-card .line {
+  background: white;
+  position: absolute;
+  transition: none;
+  transform: scale(0);
+  opacity: 0.25;
+}
+
+.song-card .line:nth-child(1) {
+  transform-origin: 50% 50%;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+.song-card:hover > .line {
+  transform: scale(1);
+  opacity: 0;
+  transition: all 0.25s;
+}
+
 .song-card:hover {
   transform: translateY(-5px); /* Lift effect */
   background-color: rgba(255, 255, 255, 0.1); /* Slightly lighter on hover */
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .song-card.active {
@@ -106,10 +188,30 @@
   font-weight: bold;
 }
 
+/* Delete Button */
+.song-card .delete-button {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(68, 68, 68, 0.5); /* Match song-card background */
+  color: white;
+  border: none;
+  border-radius: 0 0 10px 10px; /* Rounded corners at the bottom */
+  padding: 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.3s;
+}
+
+.song-card .delete-button:hover {
+  background-color: rgba(255, 0, 0, 0.7); /* Red background on hover */
+}
+
 /* Thumbnail */
 .song-thumbnail {
   width: 100px; /* Larger thumbnails */
   height: 100px;
+  padding: 5px;
   object-fit: cover;
   border-radius: 8px; /* Rounded corners */
   margin-bottom: 10px;

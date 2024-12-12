@@ -5,8 +5,8 @@ import { AudioPlayerContext } from './AudioContext';
 
 const AudioVisualizer = ({
     audioRef,
-    fftSize = 512,
-    barWidth = 15,
+    fftSize = 2048,
+    barWidth = 8,
     barSpacing = 4,
     gradientColors = [
         { pos: 0, color: 'rgba(255, 255, 255, 0.3)' }, // Light reflection at the top
@@ -17,22 +17,24 @@ const AudioVisualizer = ({
     ],
     isVisible
 }) => {
-    const visualizerContainerRef = useRef(null);
-    const audioMotionRef = useRef(null);
+    const leftVisualizerRef = useRef(null);
+    const rightVisualizerRef = useRef(null);
+    const audioMotionLeftRef = useRef(null);
+    const audioMotionRightRef = useRef(null);
     const { initializeAudioContext } = useContext(AudioPlayerContext);
 
     useEffect(() => {
         if (isVisible) {
             try {
                 initializeAudioContext();
-                const initializeVisualizer = () => {
-                    if (visualizerContainerRef.current && audioRef?.current?.audio.current) {
+                const initializeVisualizer = (containerRef, audioMotionRef) => {
+                    if (containerRef.current && audioRef?.current?.audio.current) {
                         if (audioMotionRef.current) {
                             audioMotionRef.current.destroy();
                         }
 
                         // Create the visualizer instance
-                        audioMotionRef.current = new AudioMotionAnalyzer(visualizerContainerRef.current, {
+                        audioMotionRef.current = new AudioMotionAnalyzer(containerRef.current, {
                             source: audioRef.current.audio.current,
                             connectSpeakers: false,
                             fftSize: fftSize,
@@ -44,11 +46,10 @@ const AudioVisualizer = ({
                             showBgColor: true,
                             bgAlpha: 0,
                             overlay: true,
-                            fsWidth: window.innerWidth,
+                            fsWidth: window.innerWidth / 2,
                             fsHeight: window.innerHeight,
                             showPeaks: false
                         });
-                        
 
                         console.log('[DEBUG]: Visualizer initialized.');
 
@@ -64,13 +65,21 @@ const AudioVisualizer = ({
                 };
 
                 if (audioRef?.current?.audio.current) {
-                    initializeVisualizer();
+                    initializeVisualizer(leftVisualizerRef, audioMotionLeftRef);
+                    initializeVisualizer(rightVisualizerRef, audioMotionRightRef);
                 }
 
+                const leftAudioMotion = audioMotionLeftRef.current;
+                const rightAudioMotion = audioMotionRightRef.current;
+
                 return () => {
-                    if (audioMotionRef.current) {
-                        console.log('[DEBUG]: Destroying visualizer instance.');
-                        audioMotionRef.current.destroy();
+                    if (leftAudioMotion) {
+                        console.log('[DEBUG]: Destroying left visualizer instance.');
+                        leftAudioMotion.destroy();
+                    }
+                    if (rightAudioMotion) {
+                        console.log('[DEBUG]: Destroying right visualizer instance.');
+                        rightAudioMotion.destroy();
                     }
                 };
             } catch (error) {
@@ -80,10 +89,16 @@ const AudioVisualizer = ({
     }, [isVisible, initializeAudioContext, audioRef, fftSize, barWidth, barSpacing, gradientColors]);
 
     return (
-        <div
-            ref={visualizerContainerRef}
-            className="visualizer-container"
-        />
+        <>
+            <div
+                ref={leftVisualizerRef}
+                className="visualizer-container left"
+            />
+            <div
+                ref={rightVisualizerRef}
+                className="visualizer-container right"
+            />
+        </>
     );
 };
 

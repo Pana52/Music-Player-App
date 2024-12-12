@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './styles/Music.css'; // Custom styling for the full-page layout
+import './styles/Warning.css'; // Custom styling for warnings
+import axios from 'axios'; // Import axios for making HTTP requests
 
 function Music({ songs, currentIndex, setCurrentIndex }) {
   const [selectedArtist, setSelectedArtist] = useState('All Songs'); // Track the selected artist
   const defaultImage = '/default-album-cover.png'; // Path to default image
+  const fileInputRef = useRef(null); // Reference to the file input
+  const [showWarning, setShowWarning] = useState(false); // Track warning visibility
+  const [warningMessage, setWarningMessage] = useState(''); // Track warning message
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -20,6 +25,43 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
 
   const handleArtistClick = (artist) => {
     setSelectedArtist(artist);
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        await axios.post('http://localhost:8000/upload/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        console.log(`File uploaded successfully - ${file.name}`);
+        // Refresh the page to reflect the changes
+        window.location.reload();
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+  };
+
+  const handleDeleteSong = async (song) => {
+    if (songs.indexOf(song) === currentIndex) {
+      setWarningMessage('Cannot delete a song that is currently playing.');
+      setShowWarning(true);
+      return;
+    }
+    try {
+      await axios.delete(`http://localhost:8000/delete/${song.filename}`);
+      console.log(`File deleted successfully - ${song.filename}`);
+      // Refresh the page to reflect the changes
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting file:', error);
+    }
   };
 
   // Utility to check if an element is overflowing
@@ -41,8 +83,28 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
 
   return (
     <div className="music-page">
+      {/* Warning Popup */}
+      {showWarning && (
+        <div className="warning-popup">
+          <p>{warningMessage}</p>
+          <button onClick={() => setShowWarning(false)}>Close</button>
+        </div>
+      )}
       {/* Artist Side Panel */}
       <div className="artist-panel">
+        <input
+          type="file"
+          accept="audio/*"
+          onChange={handleFileUpload}
+          ref={fileInputRef}
+          style={{ display: 'none' }}
+        />
+        <button
+          onClick={() => fileInputRef.current.click()}
+          className="import-button"
+        >
+          Import Song
+        </button>
         {artists.map((artist, index) => (
           <button
             key={index}
@@ -71,6 +133,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                 }`}
                 onClick={() => handleSongClick(songs.indexOf(song))} // Map back to original index
               >
+                <div className="line"></div>
                 <img
                   src={song.albumImage || defaultImage}
                   alt={`${song.title} album cover`}
@@ -79,6 +142,15 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                 <div className="song-details">
                   <h3 className="song-title">{song.title}</h3>
                   <p className="song-artist">{song.artist}</p>
+                  <button
+                    className="delete-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteSong(song);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             ))

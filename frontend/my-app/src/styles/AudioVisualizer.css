@@ -1,14 +1,22 @@
 .visualizer-container {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100vw; /* Fullscreen width */
+  width: 50vw; /* Half screen width */
   height: 100vh; /* Fullscreen height */
   z-index: -3; /* Place behind all elements */
   pointer-events: none; /* Make it non-interactive */
   background: transparent; /* Fully transparent background */
   overflow: hidden; /* Ensure no overflow from the visualizer */
   filter: blur(2px); /* Add slight blur for a softer glass effect */
+}
+
+.visualizer-container.left {
+  left: 0;
+}
+
+.visualizer-container.right {
+  right: 0;
+  transform: rotateY(180deg);
 }
 
 .visualizer-container canvas {
