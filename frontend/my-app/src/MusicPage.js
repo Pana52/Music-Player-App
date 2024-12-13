@@ -134,6 +134,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                 onClick={() => handleSongClick(songs.indexOf(song))} // Map back to original index
               >
                 <div className="line"></div>
+                <div className="line"></div>
                 <img
                   src={song.albumImage || defaultImage}
                   alt={`${song.title} album cover`}

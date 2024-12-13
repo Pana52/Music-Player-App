@@ -8,12 +8,61 @@ export function AudioProvider({ children }) {
     const mediaElementSourceRef = useRef(null);
     const [currentSong, setCurrentSong] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [volume, setVolume] = useState(1.0);
+    const [volume, setVolume] = useState(0.5);
     const [isVisualizerEnabled, setIsVisualizerEnabled] = useState(false);
+    const [equalizerPreset, setEqualizerPreset] = useState('flat');
+    const [playbackSpeedState, setPlaybackSpeedState] = useState(1);
+    const equalizerBandsRef = useRef([]);
 
     const debugLog = (message, data) => {
         console.log(`[DEBUG]: ${message}`, data || '');
     };
+
+    const applyEqualizerPreset = useCallback((preset) => {
+        setEqualizerPreset(preset);
+        fetch('http://localhost:8000/api/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ equalizerPreset: preset }),
+        }).catch(error => console.error('Error saving equalizer preset:', error));
+
+        const bands = equalizerBandsRef.current;
+        if (bands.length === 0) return;
+
+        const presets = {
+            flat: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            bass: [5, 4, 3, 2, 1, 0, -1, -2, -3, -4],
+            treble: [-4, -3, -2, -1, 0, 1, 2, 3, 4, 5],
+            vocal: [0, 1, 2, 3, 4, 3, 2, 1, 0, -1],
+        };
+
+        const gains = presets[preset] || presets.flat;
+        bands.forEach((band, index) => {
+            band.gain.setValueAtTime(gains[index], audioContextRef.current.currentTime);
+        });
+
+        debugLog(`Equalizer preset applied: ${preset}`);
+    }, []);
+
+    useEffect(() => {
+        fetch('http://localhost:8000/api/settings/')
+            .then(response => response.json())
+            .then(config => {
+                setVolume(config.volume);
+                setEqualizerPreset(config.equalizerPreset);
+                setPlaybackSpeedState(config.playbackSpeed || 1); // Ensure default value
+
+                // Apply settings immediately
+                if (audioRef.current?.audio.current) {
+                    audioRef.current.audio.current.volume = config.volume;
+                    audioRef.current.audio.current.playbackRate = config.playbackSpeed || 1;
+                }
+                applyEqualizerPreset(config.equalizerPreset);
+            })
+            .catch(error => console.error('Error loading config:', error));
+    }, [applyEqualizerPreset]);
 
     const initializeAudioContext = useCallback(() => {
         try {
@@ -46,10 +95,33 @@ export function AudioProvider({ children }) {
     }, []);
 
     const adjustVolume = useCallback((newVolume) => {
-        setVolume(newVolume);
+        const roundedVolume = Math.round(newVolume * 10) / 10; // Round to nearest 0.1
+        setVolume(roundedVolume);
+        fetch('http://localhost:8000/api/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ volume: roundedVolume }),
+        }).catch(error => console.error('Error saving volume:', error));
         if (audioRef.current?.audio.current) {
-            audioRef.current.audio.current.volume = newVolume;
-            debugLog(`Volume adjusted: ${newVolume}`);
+            audioRef.current.audio.current.volume = roundedVolume;
+            debugLog(`Volume adjusted: ${roundedVolume}`);
+        }
+    }, []);
+
+    const setPlaybackSpeed = useCallback((newSpeed) => {
+        setPlaybackSpeedState(newSpeed);
+        fetch('http://localhost:8000/api/settings/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ playbackSpeed: newSpeed }),
+        }).catch(error => console.error('Error saving playback speed:', error));
+        if (audioRef.current?.audio.current && isFinite(newSpeed)) {
+            audioRef.current.audio.current.playbackRate = newSpeed;
+            debugLog(`Playback speed adjusted: ${newSpeed}`);
         }
     }, []);
 
@@ -60,9 +132,11 @@ export function AudioProvider({ children }) {
     useEffect(() => {
         if (audioRef.current?.audio.current) {
             audioRef.current.audio.current.volume = volume;
+            audioRef.current.audio.current.playbackRate = playbackSpeedState;
             debugLog(`Initial volume set: ${volume}`);
+            debugLog(`Initial playback speed set: ${playbackSpeedState}`);
         }
-    }, [volume]);
+    }, [volume, playbackSpeedState]);
 
     useEffect(() => {
         const handleUserGesture = () => {
@@ -79,6 +153,28 @@ export function AudioProvider({ children }) {
             window.removeEventListener('keydown', handleUserGesture);
         };
     }, [initializeAudioContext]);
+
+    useEffect(() => {
+        if (audioContextRef.current && mediaElementSourceRef.current) {
+            const frequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
+            const bands = frequencies.map((freq) => {
+                const filter = audioContextRef.current.createBiquadFilter();
+                filter.type = 'peaking';
+                filter.frequency.value = freq;
+                filter.Q.value = 1;
+                filter.gain.value = 0;
+                return filter;
+            });
+
+            bands.reduce((prev, curr) => {
+                prev.connect(curr);
+                return curr;
+            }, mediaElementSourceRef.current).connect(audioContextRef.current.destination);
+
+            equalizerBandsRef.current = bands;
+            applyEqualizerPreset(equalizerPreset);
+        }
+    }, [applyEqualizerPreset, equalizerPreset]);
 
     const handlePlay = () => {
         if (audioContextRef.current?.state === 'suspended') {
@@ -123,6 +219,10 @@ export function AudioProvider({ children }) {
                 initializeAudioContext, // Expose initializeAudioContext
                 isVisualizerEnabled,
                 toggleVisualizer,
+                equalizerPreset,
+                applyEqualizerPreset,
+                playbackSpeed: playbackSpeedState,
+                setPlaybackSpeed,
             }}
         >
             {children}

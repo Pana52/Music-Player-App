@@ -15,6 +15,7 @@ import Settings from './Settings';
 function AppContent() {
     const [songs, setSongs] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [config, setConfig] = useState(null);
     const {
         audioRef,
         currentSong,
@@ -26,10 +27,29 @@ function AppContent() {
         handleNavigation,
         isVisualizerEnabled,
         toggleVisualizer,
+        applyEqualizerPreset,
+        setPlaybackSpeed,
     } = useContext(AudioPlayerContext);
 
     const location = useLocation();
     const isHomePage = location.pathname === '/';
+
+    useEffect(() => {
+        fetch('http://localhost:8000/api/settings/')
+            .then(response => response.json())
+            .then(data => {
+                setConfig(data);
+                // Apply settings immediately
+                if (audioRef.current?.audio.current) {
+                    audioRef.current.audio.current.volume = data.volume;
+                    audioRef.current.audio.current.playbackRate = data.playbackSpeed || 1;
+                }
+                adjustVolume(data.volume);
+                applyEqualizerPreset(data.equalizerPreset);
+                setPlaybackSpeed(data.playbackSpeed || 1);
+            })
+            .catch(error => console.error('Error loading config:', error));
+    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef]);
 
     useEffect(() => {
         fetch('http://localhost:8000/api/songs/')
@@ -53,6 +73,10 @@ function AppContent() {
     useEffect(() => {
         handleNavigation();
     }, [location, handleNavigation]);
+
+    if (!config) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <div className="App">
@@ -123,11 +147,31 @@ function AppContent() {
             />
 
             <nav className="bottom-nav">
-                <Link to="/" className="nav-item" onClick={handleNavigation}>Home</Link>
-                <Link to="/artist" className="nav-item" onClick={handleNavigation}>Artist</Link>
-                <Link to="/music" className="nav-item" onClick={handleNavigation}>Music</Link>
-                <Link to="/explore" className="nav-item" onClick={handleNavigation}>Explore</Link>
-                <Link to="/settings" className="nav-item" onClick={handleNavigation}>Settings</Link>
+                <Link to="/" className="nav-item" onClick={handleNavigation}>
+                    <div className="line"></div>
+                    <div className="line"></div>
+                    Home
+                </Link>
+                <Link to="/artist" className="nav-item" onClick={handleNavigation}>
+                    <div className="line"></div>
+                    <div className="line"></div>
+                    Artist
+                </Link>
+                <Link to="/music" className="nav-item" onClick={handleNavigation}>
+                    <div className="line"></div>
+                    <div className="line"></div>
+                    Music
+                </Link>
+                <Link to="/explore" className="nav-item" onClick={handleNavigation}>
+                    <div className="line"></div>
+                    <div className="line"></div>
+                    Explore
+                </Link>
+                <Link to="/settings" className="nav-item" onClick={handleNavigation}>
+                    <div className="line"></div>
+                    <div className="line"></div>
+                    Settings
+                </Link>
             </nav>
         </div>
     );

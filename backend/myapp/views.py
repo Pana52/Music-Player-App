@@ -12,6 +12,8 @@ from .models import Artist, Genre, Album, Song
 from .serializers import ArtistSerializer, GenreSerializer, AlbumSerializer, SongSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -83,6 +85,51 @@ def song_list(request):
     songs = Song.objects.all()
     serializer = SongSerializer(songs, many=True)
     return Response(serializer.data)
+
+@csrf_exempt
+@api_view(['GET', 'POST'])
+def settings_view(request):
+    config_file_path = os.path.join(settings.MEDIA_ROOT, 'settings', 'settingsConfig.json')
+
+    if request.method == 'GET':
+        try:
+            if not os.path.exists(config_file_path):
+                default_config = {
+                    'volume': 0.5,
+                    'equalizerPreset': 'flat',
+                    'playbackSpeed': 1,  # Ensure default value
+                    # ...other default settings...
+                }
+                os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+                with open(config_file_path, 'w') as file:
+                    json.dump(default_config, file, indent=2)
+                return JsonResponse(default_config)
+            else:
+                with open(config_file_path, 'r') as file:
+                    config = json.load(file)
+                return JsonResponse(config)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Error decoding config file'}, status=500)
+
+    elif request.method == 'POST':
+        try:
+            new_config = json.loads(request.body)
+            print("Received JSON:", new_config)  # Debugging line
+            if os.path.exists(config_file_path):
+                with open(config_file_path, 'r') as file:
+                    existing_config = json.load(file)
+            else:
+                existing_config = {}
+
+            # Merge new settings with existing settings
+            existing_config.update(new_config)
+
+            os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+            with open(config_file_path, 'w') as file:
+                json.dump(existing_config, file, indent=2)
+            return JsonResponse({'message': 'Settings saved successfully'})
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
