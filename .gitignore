@@ -4,7 +4,7 @@
 *.pyc
 __pycache__
 db.sqlite3
-media
+
 
 # Backup files # 
 *.bak 
@@ -178,3 +178,13 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Media directories #
+/media/artist/*
+!/media/artist/.gitkeep
+
+/media/music/*
+!/media/music/.gitkeep
+
+/media/music data/*
+!/media/music%20data/.gitkeep
