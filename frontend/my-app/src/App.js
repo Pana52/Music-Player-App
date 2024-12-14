@@ -92,8 +92,8 @@ function AppContent() {
             },
             [keybinds.rewind]: () => audioRef.current.audio.current.currentTime -= jumpSteps.backward / 1000,
             [keybinds.forward]: () => audioRef.current.audio.current.currentTime += jumpSteps.forward / 1000,
-            [keybinds.volumeUp]: () => adjustVolume(Math.min(volume + 0.1, 1)),
-            [keybinds.volumeDown]: () => adjustVolume(Math.max(volume - 0.1, 0)),
+            [keybinds.volumeUp]: () => adjustVolume(Math.min(volume + 0.01, 1)),
+            [keybinds.volumeDown]: () => adjustVolume(Math.max(volume - 0.01, 0)),
             [keybinds.toggleLoop]: () => audioRef.current.toggleLoop && audioRef.current.toggleLoop(),
             [keybinds.toggleMute]: () => audioRef.current.toggleMute && audioRef.current.toggleMute(),
         };

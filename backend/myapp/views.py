@@ -108,8 +108,8 @@ def settings_view(request):
                 default_config = {
                     'volume': 0.5,
                     'equalizerPreset': 'flat',
-                    'playbackSpeed': 1,  # Ensure default value
-                    'autoplay': True,  # Add default autoplay setting
+                    'playbackSpeed': 1,
+                    'autoplay': True,
                     'keybinds': {
                         'playPause': ' ',
                         'rewind': 'ArrowLeft',
@@ -166,6 +166,25 @@ def settings_view(request):
         except Exception as e:
             print(f"Unexpected error: {e}")
             return JsonResponse({'error': 'Unexpected error'}, status=500)
+
+@csrf_exempt
+@api_view(['POST'])
+def reset_settings_view(request):
+    default_config_file_path = os.path.join(settings.MEDIA_ROOT, 'settings', 'defaultSettingsConfig.json')
+    config_file_path = os.path.join(settings.MEDIA_ROOT, 'settings', 'settingsConfig.json')
+
+    try:
+        with open(default_config_file_path, 'r') as default_file:
+            default_config = default_file.read()
+
+        os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
+        with open(config_file_path, 'w') as config_file:
+            config_file.write(default_config)
+
+        return JsonResponse(json.loads(default_config))
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return JsonResponse({'error': 'Unexpected error'}, status=500)
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()

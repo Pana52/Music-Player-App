@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useCallback } from 'react';
+import React, { useContext, useState, useEffect, useCallback, useRef } from 'react';
 import './styles/Settings.css';
 import './styles/Warning.css'; // Import warning styles
 import { AudioPlayerContext } from './AudioContext';
@@ -36,6 +36,41 @@ function Settings() {
     const [keyDisplayNames, setKeyDisplayNames] = useState({});
     const [showWarning, setShowWarning] = useState(false);
     const [warningMessage, setWarningMessage] = useState('');
+    const hoverTimeoutRef = useRef(null);
+
+    const playSoundEffect = (src) => {
+        const audio = new Audio(src);
+        audio.currentTime = 0;
+        audio.play().catch(error => {
+            console.error('Error playing sound effect:', error);
+        });
+        setTimeout(() => {
+            audio.pause();
+            audio.src = '';
+        }, 1000); // Destroy the audio instance after 1 second
+    };
+
+    const playHoverSound = () => {
+        const audio = new Audio('http://localhost:8000/media/sound effects/SFX_Hover.mp3');
+        audio.currentTime = 0;
+        audio.play().catch(error => {
+            console.error('Error playing hover sound:', error);
+        });
+        setTimeout(() => {
+            audio.pause();
+            audio.src = '';
+        }, 200); // Destroy the audio instance after 1 second
+    };
+
+    const handleMouseEnter = () => {
+        hoverTimeoutRef.current = setTimeout(playHoverSound, 10); // 10ms delay
+    };
+
+    const handleMouseLeave = () => {
+        if (hoverTimeoutRef.current) {
+            clearTimeout(hoverTimeoutRef.current);
+        }
+    };
 
     useEffect(() => {
         fetch('http://localhost:8000/api/settings/')
@@ -79,7 +114,8 @@ function Settings() {
     const handleVolumeChange = (event) => {
         const newVolume = parseFloat(event.target.value);
         setLocalVolume(newVolume);
-        adjustVolume(newVolume);
+        // Remove the immediate call to adjustVolume
+        // adjustVolume(newVolume);
     };
 
     const handleEqualizerPresetChange = (event) => {
@@ -183,30 +219,19 @@ function Settings() {
         .then(data => {
             console.log('Settings saved:', data);
             setJumpSteps(localJumpSteps); // Apply the new jump steps immediately
+            // Apply the new volume immediately
+            adjustVolume(localVolume);
         })
         .catch(error => console.error('Error saving settings:', error));
+        playSoundEffect('http://localhost:8000/media/sound effects/SFX_Save.mp3');
     };
 
     const handleResetSettings = () => {
-        setLocalVolume(defaultConfig.volume);
-        setLocalEqualizerPreset(defaultConfig.equalizerPreset);
-        setLocalPlaybackSpeed(defaultConfig.playbackSpeed);
-        setLocalAutoplay(defaultConfig.autoplay);
-        setLocalKeybinds(defaultConfig.keybinds);
-        setLocalJumpSteps(defaultConfig.jumpSteps);
-        adjustVolume(defaultConfig.volume);
-        applyEqualizerPreset(defaultConfig.equalizerPreset);
-        setPlaybackSpeed(defaultConfig.playbackSpeed);
-        setAutoplay(defaultConfig.autoplay);
-        setKeybinds(defaultConfig.keybinds);
-        setJumpSteps(defaultConfig.jumpSteps);
-
-        fetch('http://localhost:8000/api/settings/', {
+        fetch('http://localhost:8000/api/settings/reset/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(defaultConfig),
         })
         .then(response => {
             if (!response.ok) {
@@ -214,8 +239,23 @@ function Settings() {
             }
             return response.json();
         })
-        .then(data => console.log('Settings reset to default:', data))
+        .then(data => {
+            console.log('Settings reset to default:', data);
+            setLocalVolume(data.volume);
+            setLocalEqualizerPreset(data.equalizerPreset);
+            setLocalPlaybackSpeed(data.playbackSpeed);
+            setLocalAutoplay(data.autoplay);
+            setLocalKeybinds(data.keybinds);
+            setLocalJumpSteps(data.jumpSteps);
+            adjustVolume(data.volume);
+            applyEqualizerPreset(data.equalizerPreset);
+            setPlaybackSpeed(data.playbackSpeed);
+            setAutoplay(data.autoplay);
+            setKeybinds(data.keybinds);
+            setJumpSteps(data.jumpSteps);
+        })
         .catch(error => console.error('Error resetting settings:', error));
+        playSoundEffect('http://localhost:8000/media/sound effects/SFX_Reset.mp3');
     };
 
     return (
@@ -227,7 +267,7 @@ function Settings() {
                 </div>
             )}
             <h1>SETTINGS</h1>
-            <div className="settings-row">
+            <div className="settings-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Default Volume Level:</label>
@@ -237,7 +277,7 @@ function Settings() {
                             type="range"
                             min="0"
                             max="1"
-                            step="0.1"
+                            step="0.01"
                             value={localVolume}
                             onChange={handleVolumeChange}
                         />
@@ -245,7 +285,7 @@ function Settings() {
                     </div>
                 </div>
             </div>
-            <div className="settings-row">
+            <div className="settings-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Equalizer Presets:</label>
@@ -290,7 +330,7 @@ function Settings() {
                     </div>
                 </div>
             </div>
-            <div className="settings-row">
+            <div className="settings-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Playback Speed:</label>
@@ -309,7 +349,7 @@ function Settings() {
                     <span className="playback-speed-value">{localPlaybackSpeed.toFixed(1)}x</span>
                 </div>
             </div>
-            <div className="settings-row checkbox-row">
+            <div className="settings-row checkbox-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Autoplay:</label>
@@ -322,7 +362,7 @@ function Settings() {
                     <span className="checkbox-text">{localAutoplay ? 'Enabled' : 'Disabled'}</span>
                 </label>
             </div>
-            <div className="settings-row">
+            <div className="settings-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Rewind Jump Step (seconds):</label>
@@ -341,7 +381,7 @@ function Settings() {
                     </div>
                 </div>
             </div>
-            <div className="settings-row">
+            <div className="settings-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Forward Jump Step (seconds):</label>
@@ -360,7 +400,7 @@ function Settings() {
                     </div>
                 </div>
             </div>
-            <div className="settings-row keyboard-shortcuts-row">
+            <div className="settings-row keyboard-shortcuts-row" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <label className="settings-label">Keyboard Shortcuts:</label>

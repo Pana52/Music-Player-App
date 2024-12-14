@@ -9,6 +9,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const fileInputRef = useRef(null); // Reference to the file input
   const [showWarning, setShowWarning] = useState(false); // Track warning visibility
   const [warningMessage, setWarningMessage] = useState(''); // Track warning message
+  const hoverTimeoutRef = useRef(null);
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -67,6 +68,28 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   // Utility to check if an element is overflowing
   const isOverflowing = (element) => {
     return element.scrollWidth > element.clientWidth;
+  };
+
+  const playSoundEffect = (src) => {
+    const audio = new Audio(src);
+    audio.currentTime = 0;
+    audio.play().catch(error => {
+        console.error('Error playing sound effect:', error);
+    });
+    setTimeout(() => {
+        audio.pause();
+        audio.src = '';
+    }, 1000); // Destroy the audio instance after 1 second
+  };
+
+  const handleMouseEnter = () => {
+    hoverTimeoutRef.current = setTimeout(() => playSoundEffect('http://localhost:8000/media/sound effects/SFX_Hover.mp3'), 10); // 10ms delay
+  };
+
+  const handleMouseLeave = () => {
+    if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+    }
   };
 
   useEffect(() => {
@@ -131,7 +154,12 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                 className={`song-card ${
                   songs.indexOf(song) === currentIndex ? 'active' : ''
                 }`}
-                onClick={() => handleSongClick(songs.indexOf(song))} // Map back to original index
+                onClick={() => {
+                  handleSongClick(songs.indexOf(song)); // Map back to original index
+                  playSoundEffect('http://localhost:8000/media/sound effects/SFX_Save.mp3');
+                }}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
                 <div className="line"></div>
                 <div className="line"></div>

@@ -1,0 +1,20 @@
+{
+    "volume": 0.5,
+    "equalizerPreset": "flat",
+    "playbackSpeed": 1,
+    "autoplay": true,
+    "keybinds": {
+      "playPause": "Space",
+      "rewind": "ArrowLeft",
+      "forward": "ArrowRight",
+      "volumeUp": "ArrowUp",
+      "volumeDown": "ArrowDown",
+      "toggleLoop": "KeyL",
+      "toggleMute": "KeyM"
+    },
+    "uniqueKeybinds": true,
+    "jumpSteps": {
+      "backward": 5000,
+      "forward": 5000
+    }
+  }

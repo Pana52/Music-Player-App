@@ -131,15 +131,16 @@ export function AudioProvider({ children }) {
     }, []);
 
     const adjustVolume = useCallback((newVolume) => {
-        const roundedVolume = Math.round(newVolume * 10) / 10; // Round to nearest 0.1
+        const roundedVolume = Math.round(newVolume * 100) / 100; // Round to nearest 0.01
         setVolume(roundedVolume);
-        fetch('http://localhost:8000/api/settings/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ volume: roundedVolume }),
-        }).catch(error => console.error('Error saving volume:', error));
+        // Remove the immediate call to save the volume to the server
+        // fetch('http://localhost:8000/api/settings/', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify({ volume: roundedVolume }),
+        // }).catch(error => console.error('Error saving volume:', error));
         if (audioRef.current?.audio.current) {
             audioRef.current.audio.current.volume = roundedVolume;
             debugLog(`Volume adjusted: ${roundedVolume}`);
