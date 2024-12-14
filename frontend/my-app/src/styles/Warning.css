@@ -31,3 +31,9 @@
 .warning-popup button:hover {
   background-color: #d32f2f;
 }
+
+.warning-popup .error {
+  color: #f44336; /* Red color for error messages */
+  font-weight: bold;
+  margin-top: 10px;
+}

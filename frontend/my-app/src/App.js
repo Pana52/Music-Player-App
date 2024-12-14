@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import './styles/App.css';
 import './styles/backgrounds/Waves.css';
@@ -29,6 +29,10 @@ function AppContent() {
         toggleVisualizer,
         applyEqualizerPreset,
         setPlaybackSpeed,
+        autoplay,
+        setAutoplay,
+        keybinds,
+        jumpSteps,
     } = useContext(AudioPlayerContext);
 
     const location = useLocation();
@@ -47,9 +51,10 @@ function AppContent() {
                 adjustVolume(data.volume);
                 applyEqualizerPreset(data.equalizerPreset);
                 setPlaybackSpeed(data.playbackSpeed || 1);
+                setAutoplay(data.autoplay);
             })
             .catch(error => console.error('Error loading config:', error));
-    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef]);
+    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef, setAutoplay]);
 
     useEffect(() => {
         fetch('http://localhost:8000/api/songs/')
@@ -73,6 +78,39 @@ function AppContent() {
     useEffect(() => {
         handleNavigation();
     }, [location, handleNavigation]);
+
+    const handleKeyDown = useCallback((event) => {
+        if (!audioRef.current || !audioRef.current.audio.current) return;
+
+        const keyActionMap = {
+            [keybinds.playPause]: () => {
+                if (audioRef.current.audio.current.paused) {
+                    audioRef.current.audio.current.play();
+                } else {
+                    audioRef.current.audio.current.pause();
+                }
+            },
+            [keybinds.rewind]: () => audioRef.current.audio.current.currentTime -= jumpSteps.backward / 1000,
+            [keybinds.forward]: () => audioRef.current.audio.current.currentTime += jumpSteps.forward / 1000,
+            [keybinds.volumeUp]: () => adjustVolume(Math.min(volume + 0.1, 1)),
+            [keybinds.volumeDown]: () => adjustVolume(Math.max(volume - 0.1, 0)),
+            [keybinds.toggleLoop]: () => audioRef.current.toggleLoop && audioRef.current.toggleLoop(),
+            [keybinds.toggleMute]: () => audioRef.current.toggleMute && audioRef.current.toggleMute(),
+        };
+
+        const action = keyActionMap[event.code];
+        if (action) {
+            event.preventDefault();
+            action();
+        }
+    }, [audioRef, keybinds, adjustVolume, volume, jumpSteps]);
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
 
     if (!config) {
         return <div>Loading...</div>;
@@ -137,13 +175,17 @@ function AppContent() {
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
                 onEnded={() => {
-                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                    if (autoplay) {
+                        setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                    }
                 }}
+                hasDefaultKeyBindings={false} // Disable default key bindings
                 customAdditionalControls={[
                     <button key="toggle-visualizer" onClick={toggleVisualizer}>
                         {isVisualizerEnabled ? 'Disable Visualizer' : 'Enable Visualizer'}
                     </button>
                 ]}
+                progressJumpSteps={jumpSteps}
             />
 
             <nav className="bottom-nav">

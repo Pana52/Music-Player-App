@@ -12,6 +12,17 @@ export function AudioProvider({ children }) {
     const [isVisualizerEnabled, setIsVisualizerEnabled] = useState(false);
     const [equalizerPreset, setEqualizerPreset] = useState('flat');
     const [playbackSpeedState, setPlaybackSpeedState] = useState(1);
+    const [autoplay, setAutoplay] = useState(true); // Add autoplay state
+    const [keybinds, setKeybinds] = useState({
+        playPause: ' ',
+        rewind: 'ArrowLeft',
+        forward: 'ArrowRight',
+        volumeUp: 'ArrowUp',
+        volumeDown: 'ArrowDown',
+        toggleLoop: 'L',
+        toggleMute: 'M'
+    });
+    const [jumpSteps, setJumpSteps] = useState({ backward: 5000, forward: 5000 });
     const equalizerBandsRef = useRef([]);
 
     const debugLog = (message, data) => {
@@ -53,6 +64,17 @@ export function AudioProvider({ children }) {
                 setVolume(config.volume);
                 setEqualizerPreset(config.equalizerPreset);
                 setPlaybackSpeedState(config.playbackSpeed || 1); // Ensure default value
+                setAutoplay(config.autoplay);
+                setKeybinds(ensureUniqueKeybinds(config.keybinds || {
+                    playPause: ' ',
+                    rewind: 'ArrowLeft',
+                    forward: 'ArrowRight',
+                    volumeUp: 'ArrowUp',
+                    volumeDown: 'ArrowDown',
+                    toggleLoop: 'L',
+                    toggleMute: 'M'
+                }));
+                setJumpSteps(config.jumpSteps || { backward: 5000, forward: 5000 });
 
                 // Apply settings immediately
                 if (audioRef.current?.audio.current) {
@@ -63,6 +85,20 @@ export function AudioProvider({ children }) {
             })
             .catch(error => console.error('Error loading config:', error));
     }, [applyEqualizerPreset]);
+
+    const ensureUniqueKeybinds = (keybinds) => {
+        const usedKeys = new Set();
+        const uniqueKeybinds = {};
+        for (const [action, key] of Object.entries(keybinds)) {
+            if (!usedKeys.has(key)) {
+                uniqueKeybinds[action] = key;
+                usedKeys.add(key);
+            } else {
+                uniqueKeybinds[action] = null; // Set to null if duplicate
+            }
+        }
+        return uniqueKeybinds;
+    };
 
     const initializeAudioContext = useCallback(() => {
         try {
@@ -223,6 +259,12 @@ export function AudioProvider({ children }) {
                 applyEqualizerPreset,
                 playbackSpeed: playbackSpeedState,
                 setPlaybackSpeed,
+                autoplay,
+                setAutoplay, // Provide setAutoplay function
+                keybinds,
+                setKeybinds, // Provide setKeybinds function
+                jumpSteps,
+                setJumpSteps,
             }}
         >
             {children}

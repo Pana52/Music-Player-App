@@ -86,6 +86,17 @@ def song_list(request):
     serializer = SongSerializer(songs, many=True)
     return Response(serializer.data)
 
+def ensure_unique_keybinds(keybinds):
+    used_keys = set()
+    unique_keybinds = {}
+    for action, key in keybinds.items():
+        if key not in used_keys:
+            unique_keybinds[action] = key
+            used_keys.add(key)
+        else:
+            unique_keybinds[action] = None  # Set to None if duplicate
+    return unique_keybinds
+
 @csrf_exempt
 @api_view(['GET', 'POST'])
 def settings_view(request):
@@ -98,6 +109,20 @@ def settings_view(request):
                     'volume': 0.5,
                     'equalizerPreset': 'flat',
                     'playbackSpeed': 1,  # Ensure default value
+                    'autoplay': True,  # Add default autoplay setting
+                    'keybinds': {
+                        'playPause': ' ',
+                        'rewind': 'ArrowLeft',
+                        'forward': 'ArrowRight',
+                        'volumeUp': 'ArrowUp',
+                        'volumeDown': 'ArrowDown',
+                        'toggleLoop': 'L',
+                        'toggleMute': 'M'
+                    },
+                    'jumpSteps': {
+                        'backward': 5000,
+                        'forward': 5000
+                    },
                     # ...other default settings...
                 }
                 os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
@@ -108,8 +133,12 @@ def settings_view(request):
                 with open(config_file_path, 'r') as file:
                     config = json.load(file)
                 return JsonResponse(config)
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"Error decoding config file: {e}")
             return JsonResponse({'error': 'Error decoding config file'}, status=500)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return JsonResponse({'error': 'Unexpected error'}, status=500)
 
     elif request.method == 'POST':
         try:
@@ -124,12 +153,19 @@ def settings_view(request):
             # Merge new settings with existing settings
             existing_config.update(new_config)
 
+            if 'keybinds' in new_config:
+                new_config['keybinds'] = ensure_unique_keybinds(new_config['keybinds'])
+
             os.makedirs(os.path.dirname(config_file_path), exist_ok=True)
             with open(config_file_path, 'w') as file:
                 json.dump(existing_config, file, indent=2)
             return JsonResponse({'message': 'Settings saved successfully'})
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON: {e}")
             return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return JsonResponse({'error': 'Unexpected error'}, status=500)
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
