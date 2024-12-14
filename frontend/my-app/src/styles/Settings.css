@@ -1,0 +1,392 @@
+.settings-container {
+    padding: 20px;
+    margin-bottom: 100px;
+}
+
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    background: rgba(50, 50, 50, 0.7); /* Dark grey with transparency */
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px); /* Glass effect */
+    height: 50px; /* Ensure consistent height */
+    position: relative;
+    overflow: hidden;
+}
+
+.settings-row .line {
+    background: white;
+    position: absolute;
+    transition: none;
+    transform: scale(0);
+    opacity: 1;
+}
+
+.settings-row .line:nth-child(1) {
+    transform-origin: 100% 100%;
+    height: 5px;
+    width: 100%;
+    bottom: 0;
+}
+
+.settings-row .line:nth-child(2) {
+    transform-origin: 0 100%;
+    height: 5px;
+    width: 100%;
+    top: -1px;
+    right: 0;
+}
+
+.settings-row:hover > .line {
+    transform: scale(1);
+    opacity: 0;
+    transition: all 1s;
+}
+
+.settings-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.settings-label {
+    font-weight: bold;
+    text-align: left;
+    color: #fff; /* White text for visibility */
+    width: 100%; /* Ensure labels take up half the space */
+}
+
+.settings-input {
+    width: 100%; /* Ensure inputs take up half the space */
+    color: #fff; /* White text for visibility */
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent input background */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+    border-radius: 5px;
+    padding: 5px;
+    height: auto; /* Ensure the settings-row for Keyboard Shortcuts has enough height */
+    display: flex; /* Make the label a flex container */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    cursor: pointer; /* Pointer cursor */
+}
+
+.settings-input input[type="checkbox"] {
+    display: none; /* Hide the default checkbox */
+}
+
+.settings-input .checkbox-text {
+    display: inline-block; /* Display the text inline-block */
+    width: 100%; /* Make the text take the full width */
+    text-align: center; /* Center the text */
+    pointer-events: none; /* Ignore pointer events */
+    background: rgba(50, 50, 50, 0.7);
+}
+
+.settings-input input[type="checkbox"]:checked + .checkbox-text {
+    background: rgba(100, 100, 100, 0.7); /* Change background when checked */
+}
+
+.settings-row .settings-input input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-align: center;
+}
+
+.settings-input select {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    text-align: center;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+}
+
+.settings-input select option {
+    background: rgba(50, 50, 50, 0.7);
+    color: #fff;
+    backdrop-filter: blur(10px); /* Glass effect */
+    padding: 5px;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+.checkbox-row .settings-input {
+    width: 100%; /* Ensure inputs take up half the space */
+    color: #fff; /* White text for visibility */
+    background: rgba(255, 255, 255, 0.1); /* Slightly transparent input background */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+    border-radius: 5px;
+    padding: 5px;
+    height: auto; /* Ensure the settings-row for Keyboard Shortcuts has enough height */
+    display: flex; /* Make the label a flex container */
+    align-items: center; /* Center items vertically */
+    justify-content: center; /* Center items horizontally */
+    cursor: pointer; /* Pointer cursor */
+}
+
+.checkbox-row .settings-input input[type="checkbox"] {
+    display: none; /* Hide the default checkbox */
+}
+
+.checkbox-row .settings-input .checkbox-text {
+    display: inline-block; /* Display the text inline-block */
+    width: 100%; /* Make the text take the full width */
+    text-align: center; /* Center the text */
+    pointer-events: none; /* Ignore pointer events */
+}
+
+.settings-row .settings-input ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.settings-row .settings-input ul li {
+    margin-bottom: 5px;
+}
+
+h1 {
+    color: #fff; /* White text for visibility */
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.playback-speed-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.playback-speed-arrow {
+    cursor: pointer;
+    color: #fff;
+    font-size: 20px;
+    user-select: none;
+}
+
+.playback-speed-slider {
+    -webkit-appearance: none;
+    width: 80%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.playback-speed-slider:hover {
+    opacity: 1;
+}
+
+.playback-speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.playback-speed-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.playback-speed-value {
+    color: #fff;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.button-container {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px; /* Add space between buttons */
+}
+
+.save-button, .reset-button {
+    position: static; /* Remove absolute positioning */
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 16px;
+    color: #fff;
+    background: rgba(50, 50, 50, 0.7);
+    border: none;
+    border-radius: 0; /* Remove rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    width: 50%;
+}
+
+.save-button:hover, .reset-button:hover {
+    background: rgba(178, 178, 178, 0.9);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.save-button::after, .reset-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.save-button:hover::after, .reset-button:hover::after {
+    opacity: 1;
+}
+
+/* Ensure the settings-row for Keyboard Shortcuts has enough height */
+.keyboard-shortcuts-row {
+    height: auto;
+}
+
+.keyboard-shortcuts-row .settings-input {
+    display: flex;
+    flex-direction: column; /* Arrange keybind-rows in a column */
+    gap: 5px; /* Add space between keybind-rows */
+}
+
+.keybind-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%; /* Ensure keybind-row takes full width */
+    background: rgba(50, 50, 50, 0.7); /* Dark grey with transparency */
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s; /* Add transition for smooth background change */
+    backdrop-filter: blur(10px); /* Glass effect */
+}
+
+.keybind-row:hover {
+    background: rgba(50, 50, 50, 0.3); /* Lower background opacity on hover */
+}
+
+.keybind-label {
+    width: 20%; /* Ensure labels take up half the space */
+}
+
+.keybind-action {
+    width: 80%; /* Ensure actions take up half the space */
+}
+
+.keybind-label, .keybind-action {
+    padding: 10px;
+    color: #fff; /* White text for visibility */
+    text-align: center;
+    backdrop-filter: blur(10px); /* Glass effect */
+}
+
+.blinking-underscore {
+    display: inline-block;
+    width: 10px;
+    height: 15px;
+    background-color: #fff;
+    animation: blink 1s infinite;
+}
+
+.keybind-row.editing {
+    background: rgba(125, 125, 125, 0.5); /* Glassy yellow background */
+    backdrop-filter: none; /* Remove glass effect */
+    animation: breathing 2s infinite; /* Breathing animation */
+    color: #000; /* Black text for readability */
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+
+@keyframes breathing {
+    0%, 100% {
+        opacity: 0.7;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.settings-row span {
+    background-color: rgba(0, 0, 0, 0.7); /* Dark background with transparency */
+    color: #fff; /* White text for visibility */
+    padding: 2px 5px; /* Add some padding */
+    border-radius: 3px; /* Slightly rounded corners */
+}
+
+.range-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.range-container input[type="range"] {
+    width: 80%;
+}
+
+.range-container span {
+    width: 20%;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark background with transparency */
+    color: #fff; /* White text for visibility */
+    padding: 2px 5px; /* Add some padding */
+    border-radius: 3px; /* Slightly rounded corners */
+    margin-left: 10px; /* Add some space between the input and the text */
+}
+
+.radio-container {
+    display: flex;
+    flex-direction: row; /* Display items next to each other */
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between; /* Distribute space evenly */
+}
+
+.radio-container label {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the content */
+    gap: 10px;
+    background: rgba(50, 50, 50, 0.7); /* Dark grey with transparency */
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    flex: 1; /* Make each label take equal space */
+    transition: background 0.3s ease; /* Smooth background transition */
+}
+
+.radio-container input[type="radio"] {
+    display: none; /* Hide the default radio button */
+}
+
+.radio-container input[type="radio"]:checked + label {
+    background: rgba(100, 100, 100, 0.7); /* Change background when selected */
+}

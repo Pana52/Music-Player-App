@@ -1,0 +1,10 @@
+CREDITS
+
+This project uses sound effects provided by the following creator:
+
+- User: skyscraper_seven
+- Profile: https://pixabay.com/users/skyscraper_seven-43500092/
+- Source: Pixabay (https://pixabay.com/)
+- License: Free for use under Pixabay's content license (https://pixabay.com/service/license/)
+
+Thank you for your amazing contributions!
