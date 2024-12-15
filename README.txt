@@ -1,11 +1,13 @@
 Music Player App
 
 This repository contains the source code for a simple music player application built using React (not React Native) and Python for the backend. It aims to provide a seamless experience for playing music files with some additional features.
+
 Features
 
     Play and control music files.
     Cross-platform compatibility via web technologies.
     Modular frontend-backend architecture.
+    ... (more features on the way)
 
 Technology Stack
 Frontend
@@ -16,7 +18,7 @@ Frontend
 Backend
 
     Python: For handling server-side logic and APIs.
-    Flask/Django (clarify if applicable): To serve API endpoints and manage backend tasks.
+    Django: To serve API endpoints and manage backend tasks.
 
 Installation
 Prerequisites
@@ -43,14 +45,15 @@ pip install -r requirements.txt
 
 Start the backend server:
 
-python app.py  # Adjust based on actual backend entry file
+venv\Scripts\activate
+python manage.py runserver
 
 Start the frontend:
 
-    cd ../frontend
+    cd ../frontend/my-app
     npm start
 
-    Open your browser and navigate to http://localhost:3000 to access the app.
+    Open your browser and navigate to http://localhost:3000 (or the port you manually assigned it into) to access the app.
 
 Known Issues
 
@@ -58,7 +61,7 @@ Known Issues
 
 Contribution
 
-Feel free to fork the repository, open issues, or submit pull requests to enhance the application!
+Feel free to fork the repository, open issues, or submit pull requests to enhance the application! This is just a personal project I started out of curiousity of how Full-Stack development works, and wanted to try it out for myself.
 
 License
 
