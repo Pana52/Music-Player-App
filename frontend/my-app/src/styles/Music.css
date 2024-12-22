@@ -146,44 +146,17 @@
   align-items: center;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.3s, background 0.3s;
+  transition: transform 0.3s;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Add depth */
   overflow: hidden; /* Prevent content from overflowing */
   position: relative;
   width: 200px; /* Fixed width */
   height: 250px; /* Fixed height */
   margin: 10px; /* Add margin to ensure space between cards */
-}
-
-.song-card .line {
-  background: white;
-  position: absolute;
-  transition: none;
-  transform: scale(0);
-  opacity: 0.25;
-}
-
-.song-card .line:nth-child(1) {
-  transform-origin: 0% 100%;
-  height: 5px;
-  width: 100%;
-  top: 0;
-  left: 0;
-}
-
-.song-card .line:nth-child(2) {
-  transform-origin: 100% 0%;
-  height: 5px;
-  width: 100%;
-  bottom: 35px;
-  right: 0;
-}
-
-
-.song-card:hover > .line {
-  transform: scale(1);
-  opacity: 0;
-  transition: all 0.5s;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .song-card:hover {
@@ -197,10 +170,28 @@
   font-weight: bold;
 }
 
+.song-card .background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(1px);
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.song-card .song-details {
+  position: relative;
+  z-index: 1;
+}
+
 /* Delete Button */
 .song-card .delete-button {
   position: absolute;
   bottom: 0;
+  left: 0;
   width: 100%;
   background-color: rgba(68, 68, 68, 0.5); /* Match song-card background */
   color: white;
@@ -210,6 +201,7 @@
   cursor: pointer;
   text-align: center;
   transition: background-color 0.3s;
+  z-index: 2; /* Ensure delete button is in front of everything */
 }
 
 .song-card .delete-button:hover {
@@ -247,27 +239,3 @@
   display: inline-block; /* Ensure proper animation display */
 }
 
-/* Overflowing Text Animation */
-.song-title.overflow:hover, .song-artist.overflow:hover {
-  text-align: left; /* Align overflowing text to the left */
-  animation: scroll-text 8s linear infinite alternate; /* Back-and-forth animation */
-  overflow: visible; /* Allow text to escape boundaries */
-}
-
-/* Scrolling Animation */
-@keyframes scroll-text {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%); /* Adjust based on expected text overflow */
-  }
-}
-
-/* No Songs Message */
-.no-songs-message {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #ccc;
-  margin-top: 50px;
-}

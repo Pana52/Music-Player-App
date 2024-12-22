@@ -3,6 +3,8 @@ import './styles/Music.css'; // Custom styling for the full-page layout
 import './styles/Warning.css'; // Custom styling for warnings
 import axios from 'axios'; // Import axios for making HTTP requests
 
+const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
+
 function Music({ songs, currentIndex, setCurrentIndex }) {
   const [selectedArtist, setSelectedArtist] = useState('All Songs'); // Track the selected artist
   const defaultImage = '/default-album-cover.png'; // Path to default image
@@ -10,6 +12,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const [showWarning, setShowWarning] = useState(false); // Track warning visibility
   const [warningMessage, setWarningMessage] = useState(''); // Track warning message
   const hoverTimeoutRef = useRef(null);
+  const [albumImages, setAlbumImages] = useState({}); // Track album images
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -104,6 +107,30 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
     });
   }, [filteredSongs]); // Re-run whenever the filtered songs change
 
+  useEffect(() => {
+    const fetchAlbumImages = async () => {
+      const newAlbumImages = {};
+      for (const song of songs) {
+        const fetchUrl = `${API_BASE_URL}/api/album-image/${encodeURIComponent(song.title)}/`;
+        try {
+          const response = await fetch(fetchUrl);
+          if (!response.ok) {
+            throw new Error('Failed to fetch album image');
+          }
+          const blob = await response.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          newAlbumImages[song.title] = imageUrl;
+        } catch (error) {
+          console.error('Error fetching album image:', error);
+          newAlbumImages[song.title] = defaultImage;
+        }
+      }
+      setAlbumImages(newAlbumImages);
+    };
+
+    fetchAlbumImages();
+  }, [songs]);
+
   return (
     <div className="music-page">
       {/* Warning Popup */}
@@ -161,17 +188,21 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                <div className="line"></div>
-                <div className="line"></div>
                 <img
-                  src={song.albumImage || defaultImage}
+                  src={albumImages[song.title] || defaultImage}
+                  alt={`${song.title} album cover`}
+                  className="background-image"
+                />
+                <img
+                  src={albumImages[song.title] || defaultImage}
                   alt={`${song.title} album cover`}
                   className="song-thumbnail"
                 />
                 <div className="song-details">
                   <h3 className="song-title">{song.title}</h3>
                   <p className="song-artist">{song.artist}</p>
-                  <button
+                </div>
+                <button
                     className="delete-button"
                     onClick={(e) => {
                       e.stopPropagation();
@@ -180,7 +211,6 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                   >
                     Delete
                   </button>
-                </div>
               </div>
             ))
           ) : (

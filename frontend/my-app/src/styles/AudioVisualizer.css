@@ -7,7 +7,7 @@
   pointer-events: none; /* Make it non-interactive */
   background: transparent; /* Fully transparent background */
   overflow: hidden; /* Ensure no overflow from the visualizer */
-  filter: blur(2px); /* Add slight blur for a softer glass effect */
+  border: none; /* Remove any borders */
 }
 
 .visualizer-container.left {
@@ -21,7 +21,7 @@
 
 .visualizer-container canvas {
   pointer-events: none; /* Prevent canvas from intercepting interactions */
-  backdrop-filter: blur(5px); /* Enhance the glassy effect */
-  mix-blend-mode: lighten; /* Blend bars with background for a glossy look */
-  opacity: 0.8; /* Slight transparency for the bars */
+  mix-blend-mode: screen; /* Blend with the background */
+  opacity: 1; /* Increase visibility while maintaining transparency */
+  background: transparent; /* Ensure canvas background is transparent */
 }

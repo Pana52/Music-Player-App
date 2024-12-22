@@ -120,6 +120,7 @@ function AppContent() {
         <div className="App">
             <div className='wave'></div>
             <div className='wave'></div>
+            <div className='wave'></div>
             <Routes>
                 <Route
                     path="/"

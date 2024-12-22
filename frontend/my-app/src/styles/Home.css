@@ -8,8 +8,11 @@
 }
 
 .song-info {
-  font-size: 1.2rem;
+  font-size: 4rem;
   margin: 5px 0;
+  color: white; /* Ensure text is white for visibility */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow for better visibility */
+  width: 100%;
 }
 
 .album-image-container {
@@ -45,7 +48,7 @@
   width: 100px; /* Fixed width for each button */
   height: 100%; /* Occupies full height of the container */
   border: none;
-  background: rgba(255, 255, 255, 0.1); /* Glassy effect */
+  background: rgba(255, 255, 255, 0.5); /* Glassy effect */
   color: white;
   font-size: 1.5rem;
   cursor: pointer;

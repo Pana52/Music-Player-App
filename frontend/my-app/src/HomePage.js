@@ -40,7 +40,7 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
     const rect = albumImageRef.current.getBoundingClientRect();
     const offsetX = (clientX - rect.left) / rect.width - 0.5;
     const offsetY = (clientY - rect.top) / rect.height - 0.5;
-    albumImageRef.current.style.transform = `rotateX(${-offsetY * 10}deg) rotateY(${offsetX * 10}deg)`;
+    albumImageRef.current.style.transform = `rotateX(${-offsetY * 25}deg) rotateY(${offsetX * 25}deg)`;
   };
 
   const handleMouseLeave = () => {
@@ -65,8 +65,6 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
 
   return (
     <div className="background-container">
-      <div className="visualizer-container left"></div>
-      <div className="visualizer-container right"></div>
       <div className="music-library-container">
         <div className="album-image-container">
           <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
@@ -80,9 +78,8 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
           />
           <button onClick={handleNext} className="nav-button next-button">&rarr;</button>
         </div>
-
-        <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
       </div>
+      <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
     </div>
   );
 }
