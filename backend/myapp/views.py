@@ -8,12 +8,11 @@ from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from mutagen.mp3 import MP3
 from mutagen.id3 import ID3, TIT2, TPE1, TALB
-from .models import Artist, Genre, Album, Song
-from .serializers import ArtistSerializer, GenreSerializer, AlbumSerializer, SongSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
 import json
+from .models import Song
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -79,12 +78,6 @@ def delete_music_file(request, filename):
 @api_view(['GET'])
 def status_view(request):
     return Response({'status': 'Django Backend Running'})
-
-@api_view(['GET'])
-def song_list(request):
-    songs = Song.objects.all()
-    serializer = SongSerializer(songs, many=True)
-    return Response(serializer.data)
 
 def ensure_unique_keybinds(keybinds):
     used_keys = set()
@@ -186,18 +179,14 @@ def reset_settings_view(request):
         print(f"Unexpected error: {e}")
         return JsonResponse({'error': 'Unexpected error'}, status=500)
 
-class ArtistViewSet(viewsets.ModelViewSet):
-    queryset = Artist.objects.all()
-    serializer_class = ArtistSerializer
-
-class GenreViewSet(viewsets.ModelViewSet):
-    queryset = Genre.objects.all()
-    serializer_class = GenreSerializer
-
-class AlbumViewSet(viewsets.ModelViewSet):
-    queryset = Album.objects.all()
-    serializer_class = AlbumSerializer
-
-class SongViewSet(viewsets.ModelViewSet):
-    queryset = Song.objects.all()
-    serializer_class = SongSerializer
+@api_view(['GET'])
+def get_album_image(request, title):
+    try:
+        song = Song.objects.get(title=title)
+        if song.albumImage:
+            with open(song.albumImage.path, 'rb') as img_file:
+                return HttpResponse(img_file.read(), content_type="image/jpeg")
+        else:
+            return JsonResponse({'error': 'Album image not found'}, status=404)
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
