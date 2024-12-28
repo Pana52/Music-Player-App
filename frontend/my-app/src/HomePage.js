@@ -7,6 +7,7 @@ const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
 function Home({ songs, currentIndex, setCurrentIndex }) {
   const albumImageRef = useRef(null);
   const [albumImage, setAlbumImage] = useState('/default-album-cover.png');
+  const [lyrics, setLyrics] = useState('');
 
   useEffect(() => {
     const fetchAlbumImage = async () => {
@@ -32,7 +33,30 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
       }
     };
 
+    const fetchLyrics = async () => {
+      const currentSong = songs[currentIndex];
+      if (!currentSong || !currentSong.title || !currentSong.artist) {
+        console.error('Current song, title, or artist is missing');
+        return;
+      }
+
+      const fetchUrl = `${API_BASE_URL}/api/lyrics/${encodeURIComponent(currentSong.title)}/${encodeURIComponent(currentSong.artist)}/`;
+
+      try {
+        const response = await fetch(fetchUrl);
+        if (!response.ok) {
+          throw new Error('Failed to fetch lyrics');
+        }
+        const data = await response.json();
+        setLyrics(data.lyrics.replace(/\n/g, '<br/>'));
+      } catch (error) {
+        console.error('Error fetching lyrics:', error);
+        setLyrics('Lyrics not available');
+      }
+    };
+
     fetchAlbumImage();
+    fetchLyrics();
   }, [currentIndex, songs]);
 
   const handleMouseMove = (event) => {
@@ -65,21 +89,28 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
 
   return (
     <div className="background-container">
-      <div className="music-library-container">
-        <div className="album-image-container">
-          <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
-          <img
-            ref={albumImageRef}
-            src={albumImage}
-            alt={currentSong.album || 'Unknown Album'}
-            className="album-image"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-          />
-          <button onClick={handleNext} className="nav-button next-button">&rarr;</button>
+      <div className="song-display">
+        <div className="music-library-container">
+          <div className="album-image-container">
+            <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
+            <img
+              ref={albumImageRef}
+              src={albumImage}
+              alt={currentSong.album || 'Unknown Album'}
+              className="album-image"
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+            />
+            <button onClick={handleNext} className="nav-button next-button">&rarr;</button>
+          </div>
+        </div>
+        <h3 className="song-info title-info">{currentSong.title}</h3>
+        <h3 className="song-info artist-info">{currentSong.artist}</h3>
+      </div>
+      <div className='lyrics-container'>
+        <div className='lyrics' dangerouslySetInnerHTML={{ __html: lyrics }}>
         </div>
       </div>
-      <h3 className="song-info">{currentSong.title} - {currentSong.artist}</h3>
     </div>
   );
 }

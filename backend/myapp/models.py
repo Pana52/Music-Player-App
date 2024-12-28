@@ -6,6 +6,7 @@ class Song(models.Model):
     albumImage = models.ImageField(upload_to='music data/album covers/', blank=True, null=True)  # Album art (optional)
     duration = models.DurationField()  # Duration of the song
     file_path = models.FilePathField(path="media/music/", match=".*\.mp3$", recursive=True)  # Path to the song file
+    lyrics_path = models.FilePathField(path="media/music data/lyrics/", match=".*\.txt$", recursive=True, blank=True, null=True)  # Path to the lyrics file (optional)
     added_at = models.DateTimeField(auto_now_add=True)  # Date the song was added
 
     def __str__(self):

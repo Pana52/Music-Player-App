@@ -1,7 +1,7 @@
 /* Full Page Structure */
 .music-page {
   width: 100%;
-  height: calc(100vh - 80px); /* Adjust height for fixed audio player and navbar */
+  height: calc(100vh - 60px); /* Adjust height for fixed audio player and navbar */
   background-color: rgba(20, 20, 20, 0.95); /* Dark background */
   color: white;
   display: flex;

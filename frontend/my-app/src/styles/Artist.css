@@ -1,7 +1,7 @@
 /* Full Page Structure */
 .artist-page {
   width: 100%;
-  height: calc(100vh - 80px); /* Adjust height to fit above fixed audio player and navbar */
+  height: calc(100vh - 60px); /* Adjust height to fit above fixed audio player and navbar */
   display: flex;
   flex-direction: column;
   background-color: rgba(20, 20, 20, 0.95);

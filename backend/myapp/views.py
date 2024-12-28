@@ -190,3 +190,16 @@ def get_album_image(request, title):
             return JsonResponse({'error': 'Album image not found'}, status=404)
     except Song.DoesNotExist:
         return JsonResponse({'error': 'Song not found'}, status=404)
+
+@api_view(['GET'])
+def get_lyrics(request, title, artist):
+    try:
+        song = Song.objects.get(title=title, artist=artist)
+        if song.lyrics_path:
+            with open(song.lyrics_path, 'r') as lyrics_file:
+                lyrics = lyrics_file.read()
+            return JsonResponse({'lyrics': lyrics})
+        else:
+            return JsonResponse({'error': 'Lyrics not found'}, status=404)
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)

@@ -7,12 +7,76 @@
   z-index: 1; /* Lower z-index to ensure the sidebar has priority */
 }
 
+.lyrics-container {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  z-index: 1; /* Lower z-index to ensure the sidebar has priority */
+  width: calc(50% - 15px); /* Adjust width to account for gaps */
+  height: 80%;
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background for glass effect */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.3); /* Outer shadow and soft inner glow */
+  backdrop-filter: blur(1px); /* Glass effect */
+  border-radius: 15px; /* Rounded corners */
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  will-change: transform; /* Improves animation performance */
+  position: absolute;
+  right: 0;
+  margin: 10px 10px 0 5px; /* 10px gap on the right, 5px gap between containers */
+  overflow: hidden; /* Hide overflow */
+}
+
+.lyrics {
+  font-size: 2rem;
+  line-height: 2;
+  color: white;
+  text-align: center;
+  white-space: pre-wrap; /* Preserve formatting including line breaks */
+  margin: 20px; /* Add margin for spacing */
+  overflow-y: scroll; /* Enable vertical scrolling */
+  max-height: 100%; /* Ensure it doesn't exceed the container height */
+  position: relative;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+}
+
+.lyrics::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+.song-display {
+  align-items: center;
+  justify-content: left;
+  width: calc(50% - 15px); /* Adjust width to account for gaps */
+  height: 80%;
+  background: rgba(255, 255, 255, 0.1); /* Semi-transparent background for glass effect */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.3); /* Outer shadow and soft inner glow */
+  backdrop-filter: blur(1px); /* Glass effect */
+  border-radius: 15px; /* Rounded corners */
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  will-change: transform; /* Improves animation performance */
+  position: absolute;
+  left: 0;
+  margin: 10px 5px 0 10px; /* 10px gap on the left, 5px gap between containers */
+}
+
 .song-info {
-  font-size: 4rem;
   margin: 5px 0;
-  color: white; /* Ensure text is white for visibility */
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Soft shadow for better visibility */
   width: 100%;
+  user-select: none; /* Standard syntax */
+}
+
+.title-info {
+  font-size: 4rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  user-select: none; /* Standard syntax */
+}
+
+.artist-info {
+  font-size: 2rem;
+  color: rgba(235, 235, 235, 0.75);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .album-image-container {
@@ -60,6 +124,7 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   transition: background-color 0.3s, transform 0.2s;
   z-index: 2; /* Ensures buttons are above the image */
+  margin: 0 -10px;
 }
 
 .nav-button:hover {
