@@ -13,6 +13,7 @@ from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Song
+from django.shortcuts import get_object_or_404
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -69,11 +70,38 @@ def upload_music_file(request):
 def delete_music_file(request, filename):
     decoded_filename = unquote(filename)
     file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        return JsonResponse({'message': 'File deleted successfully'})
-    else:
-        return JsonResponse({'error': 'File not found'}, status=404)
+
+    try:
+        song = Song.objects.get(file_path=file_path)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        song.delete()
+        return JsonResponse({'message': 'File and database entry deleted successfully'})
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found in database'}, status=404)
+    except PermissionError:
+        return JsonResponse({'error': 'File is currently in use. Please stop playback and try again.'}, status=403)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+def delete_song(request, filename):
+    if request.method == 'DELETE':
+        try:
+            song = get_object_or_404(Song, file_path__endswith=filename)
+            if os.path.exists(song.file_path):
+                os.remove(song.file_path)
+            song.delete()
+            return JsonResponse({'message': 'File and database entry deleted successfully'}, status=200)
+        except Song.DoesNotExist:
+            return JsonResponse({'error': 'Song not found in database'}, status=404)
+        except PermissionError:
+            return JsonResponse({'error': 'Permission denied. Please check file permissions.'}, status=403)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @api_view(['GET'])
 def status_view(request):

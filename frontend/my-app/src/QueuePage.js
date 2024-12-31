@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import './styles/Music.css'; // Custom styling for the full-page layout
+import React, { useState, useEffect, useRef } from 'react';
+import './styles/Queue.css'; // Custom styling for the full-page layout
 import './styles/Warning.css'; // Custom styling for warnings
 import axios from 'axios'; // Import axios for making HTTP requests
-import { AudioPlayerContext } from './AudioContext'; // Import AudioPlayerContext
 
 const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
 
@@ -10,11 +9,8 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const [selectedArtist, setSelectedArtist] = useState('All Songs'); // Track the selected artist
   const defaultImage = '/default-album-cover.png'; // Path to default image
   const fileInputRef = useRef(null); // Reference to the file input
-  const [showWarning, setShowWarning] = useState(false); // Track warning visibility
-  const [warningMessage, setWarningMessage] = useState(''); // Track warning message
   const hoverTimeoutRef = useRef(null);
   const [albumImages, setAlbumImages] = useState({}); // Track album images
-  const { isPlaying, stopAudioContext } = useContext(AudioPlayerContext); // Get isPlaying and stopAudioContext from context
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -51,31 +47,6 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
       } catch (error) {
         console.error('Error uploading file:', error);
       }
-    }
-  };
-
-  const handleDeleteSong = async (song, stopAudioContext) => {
-    if (songs.indexOf(song) === currentIndex && isPlaying) {
-      setWarningMessage('Cannot delete a song that is currently playing.');
-      setShowWarning(true);
-      return;
-    }
-
-    if (songs.indexOf(song) === currentIndex && !isPlaying) {
-      stopAudioContext();
-    }
-
-    try {
-      const encodedFilename = encodeURIComponent(song.filename);
-      await axios.delete(`http://localhost:8000/delete/${encodedFilename}/`);
-      await axios.delete(`http://localhost:8000/api/songs/${encodeURIComponent(song.title)}/${encodeURIComponent(song.artist)}/`);
-      console.log(`File deleted successfully - ${song.filename}`);
-      // Refresh the page to reflect the changes
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      setWarningMessage('Error deleting file. Please try again.');
-      setShowWarning(true);
     }
   };
 
@@ -143,17 +114,13 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   }, [songs]);
 
   return (
-    <div className="music-page">
-      {/* Warning Popup */}
-      {showWarning && (
-        <div className="warning-popup">
-          <p>{warningMessage}</p>
-          <button onClick={() => setShowWarning(false)}>Close</button>
-        </div>
-      )}
-      <div className="content-wrapper">
+    <div className="queue-music-page">
+      <header className="queue-music-header">
+        <h1>{selectedArtist === 'All Songs' ? 'All Songs' : `${selectedArtist}'s Songs`}</h1>
+      </header>
+      <div className="queue-content-container">
         {/* Artist Side Panel */}
-        <div className="artist-panel">
+        <div className="queue-artist-panel">
           <input
             type="file"
             accept="audio/*"
@@ -161,16 +128,10 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
             ref={fileInputRef}
             style={{ display: 'none' }}
           />
-          <button
-            onClick={() => fileInputRef.current.click()}
-            className="import-button"
-          >
-            IMPORT SONG
-          </button>
           {artists.map((artist, index) => (
             <button
               key={index}
-              className={`artist-button ${
+              className={`queue-artist-button ${
                 artist === selectedArtist ? 'active' : ''
               }`}
               onClick={() => handleArtistClick(artist)}
@@ -179,23 +140,18 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
             </button>
           ))}
         </div>
-
         {/* Song Grid */}
-        <div className="song-grid-container">
-          {/* Header */}
-          <header className="music-header">
-            <h1>{selectedArtist === 'All Songs' ? 'All Songs' : `${selectedArtist}'s Songs`}</h1>
-        </header>
-          <div className="song-grid">
+        <div className="queue-song-grid-container">
+          <div className="queue-song-grid">
             {filteredSongs.length > 0 ? (
               filteredSongs.map((song, index) => (
                 <div
                   key={index}
-                  className={`song-card ${
+                  className={`queue-song-card ${
                     songs.indexOf(song) === currentIndex ? 'active' : ''
                   }`}
                   onClick={() => {
-                    handleSongClick(songs.indexOf(song)); // Map back to original index
+                    handleSongClick(songs.indexOf(song));
                     playSoundEffect('http://localhost:8000/media/sound effects/SFX_Save.mp3');
                   }}
                   onMouseEnter={handleMouseEnter}
@@ -204,37 +160,30 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
                   <img
                     src={albumImages[song.title] || defaultImage}
                     alt={`${song.title} album cover`}
-                    className="background-image"
+                    className="queue-background-image"
                   />
                   <img
                     src={albumImages[song.title] || defaultImage}
                     alt={`${song.title} album cover`}
-                    className="song-thumbnail"
+                    className="queue-song-thumbnail"
                   />
-                  <div className="song-details">
-                    <h3 className="song-title">{song.title}</h3>
-                    <p className="song-artist">{song.artist}</p>
+                  <div className="queue-song-details">
+                    <h3 className="queue-song-title">{song.title}</h3>
+                    <p className="queue-song-artist">{song.artist}</p>
                   </div>
-                  <button
-                      className="delete-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteSong(song, stopAudioContext);
-                      }}
-                    >
-                      Delete
-                    </button>
                 </div>
               ))
             ) : (
-              <p className="no-songs-message">No songs available for this artist.</p>
+              <p className="queue-no-songs-message">No songs available for this artist.</p>
             )}
           </div>
+        </div>
+        {/* Right Side Panel */}
+        <div className="queue-right-panel">
+          {/* Leave this empty for now */}
         </div>
       </div>
     </div>
   );
-
 }
-
 export default Music;

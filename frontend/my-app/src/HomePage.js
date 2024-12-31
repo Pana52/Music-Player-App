@@ -1,13 +1,16 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useContext } from 'react';
 import './styles/Home.css';
 import './styles/AudioPlayer.css';
+import { AudioPlayerContext } from './AudioContext';
 
 const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
 
 function Home({ songs, currentIndex, setCurrentIndex }) {
   const albumImageRef = useRef(null);
+  const lyricsRef = useRef(null); // Add ref for lyrics div
   const [albumImage, setAlbumImage] = useState('/default-album-cover.png');
   const [lyrics, setLyrics] = useState('');
+  const { audioRef } = useContext(AudioPlayerContext); // Get audioRef from context
 
   useEffect(() => {
     const fetchAlbumImage = async () => {
@@ -59,6 +62,45 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
     fetchLyrics();
   }, [currentIndex, songs]);
 
+  useEffect(() => {
+    const handleTimeUpdate = () => {
+      if (audioRef.current && lyricsRef.current) {
+        const speedMultiplier = 1.5;
+        const { currentTime, duration } = audioRef.current.audio.current;
+        const scrollHeight = lyricsRef.current.scrollHeight - lyricsRef.current.clientHeight;
+        const scrollPosition = (currentTime / duration) * scrollHeight * speedMultiplier;
+        lyricsRef.current.scrollTop = scrollPosition;
+      }
+    };
+
+    const handlePlay = () => {
+      if (lyricsRef.current) {
+        lyricsRef.current.style.overflowY = 'hidden';
+      }
+    };
+
+    const handlePause = () => {
+      if (lyricsRef.current) {
+        lyricsRef.current.style.overflowY = 'scroll';
+      }
+    };
+
+    const audioElement = audioRef.current?.audio.current;
+    if (audioElement) {
+      audioElement.addEventListener('timeupdate', handleTimeUpdate);
+      audioElement.addEventListener('play', handlePlay);
+      audioElement.addEventListener('pause', handlePause);
+    }
+
+    return () => {
+      if (audioElement) {
+        audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+        audioElement.removeEventListener('play', handlePlay);
+        audioElement.removeEventListener('pause', handlePause);
+      }
+    };
+  }, [audioRef]);
+
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
     const rect = albumImageRef.current.getBoundingClientRect();
@@ -90,6 +132,7 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
   return (
     <div className="background-container">
       <div className="song-display">
+      <img src={albumImage} alt={currentSong.album || 'Unknown Album'} className="song-display-bg" />
         <div className="music-library-container">
           <div className="album-image-container">
             <button onClick={handlePrevious} className="nav-button previous-button">&larr;</button>
@@ -108,7 +151,7 @@ function Home({ songs, currentIndex, setCurrentIndex }) {
         <h3 className="song-info artist-info">{currentSong.artist}</h3>
       </div>
       <div className='lyrics-container'>
-        <div className='lyrics' dangerouslySetInnerHTML={{ __html: lyrics }}>
+        <div className='lyrics' ref={lyricsRef} dangerouslySetInnerHTML={{ __html: lyrics }}>
         </div>
       </div>
     </div>

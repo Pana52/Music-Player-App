@@ -130,6 +130,17 @@ export function AudioProvider({ children }) {
         }
     }, []);
 
+    const stopAudioContext = useCallback(() => {
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+            audioContextRef.current.close().then(() => {
+                mediaElementSourceRef.current = null;
+                debugLog('AudioContext stopped and disconnected.');
+            }).catch((error) => {
+                console.error('Error stopping AudioContext:', error);
+            });
+        }
+    }, []);
+
     const adjustVolume = useCallback((newVolume) => {
         const roundedVolume = Math.round(newVolume * 100) / 100; // Round to nearest 0.01
         setVolume(roundedVolume);
@@ -266,6 +277,7 @@ export function AudioProvider({ children }) {
                 setKeybinds, // Provide setKeybinds function
                 jumpSteps,
                 setJumpSteps,
+                stopAudioContext, // Expose stopAudioContext
             }}
         >
             {children}
