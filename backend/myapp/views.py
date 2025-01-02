@@ -77,12 +77,20 @@ def delete_music_file(request, filename):
         if os.path.exists(file_path):
             os.remove(file_path)
 
+        # Delete album image if it exists
+        if song.albumImage and os.path.exists(song.albumImage.path):
+            os.remove(song.albumImage.path)
+
+        # Delete lyrics file if it exists
+        if song.lyrics_path and os.path.exists(song.lyrics_path):
+            os.remove(song.lyrics_path)
+
         song.delete()
         return JsonResponse({'message': 'File and database entry deleted successfully'})
     except Song.DoesNotExist:
         return JsonResponse({'error': 'Song not found in database'}, status=404)
     except PermissionError:
-        return JsonResponse({'error': 'File is currently in use. Please stop playback and try again.'}, status=403)
+        return JsonResponse({'error': 'Permission denied. Please check file permissions.'}, status=403)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -93,6 +101,15 @@ def delete_song(request, filename):
             song = get_object_or_404(Song, file_path__endswith=filename)
             if os.path.exists(song.file_path):
                 os.remove(song.file_path)
+
+            # Delete album image if it exists
+            if song.albumImage and os.path.exists(song.albumImage.path):
+                os.remove(song.albumImage.path)
+
+            # Delete lyrics file if it exists
+            if song.lyrics_path and os.path.exists(song.lyrics_path):
+                os.remove(song.lyrics_path)
+
             song.delete()
             return JsonResponse({'message': 'File and database entry deleted successfully'}, status=200)
         except Song.DoesNotExist:

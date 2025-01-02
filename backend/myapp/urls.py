@@ -16,6 +16,6 @@ urlpatterns = [
     path('settings/reset/', reset_settings_view),
     path('album-image/<str:title>/', get_album_image),
     path('lyrics/<str:title>/<str:artist>/', get_lyrics),
-    path('delete/<str:filename>/', delete_song, name='delete_song'),
+    path('delete/<str:filename>/', delete_music_file),
     path('', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

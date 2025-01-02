@@ -68,8 +68,13 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
     try {
       const encodedFilename = encodeURIComponent(song.filename);
       await axios.delete(`http://localhost:8000/delete/${encodedFilename}/`);
-      await axios.delete(`http://localhost:8000/api/songs/${encodeURIComponent(song.title)}/${encodeURIComponent(song.artist)}/`);
       console.log(`File deleted successfully - ${song.filename}`);
+      
+      // Remove the song from the songs array and update the state
+      const updatedSongs = songs.filter((s) => s !== song);
+      setCurrentIndex((prevIndex) => (prevIndex >= updatedSongs.length ? 0 : prevIndex));
+      setSelectedArtist('All Songs');
+      setShowWarning(false);
       // Refresh the page to reflect the changes
       window.location.reload();
     } catch (error) {
