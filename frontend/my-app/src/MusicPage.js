@@ -25,34 +25,57 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
       ? songs
       : songs.filter((song) => song.artist === selectedArtist);
 
-  const handleSongClick = (index) => {
-    setCurrentIndex(index);
-  };
-
-  const handleArtistClick = (artist) => {
-    setSelectedArtist(artist);
-  };
-
-  const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      try {
-        await axios.post('http://localhost:8000/upload/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        console.log(`File uploaded successfully - ${file.name}`);
-        // Refresh the page to reflect the changes
-        window.location.reload();
-      } catch (error) {
-        console.error('Error uploading file:', error);
-      }
-    }
-  };
+      const handleSongClick = (index) => {
+        setCurrentIndex(index);
+      };
+      
+      const handleArtistClick = (artist) => {
+        setSelectedArtist(artist);
+      };
+      
+      const handleFileUpload = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const formData = new FormData();
+          formData.append('file', file);
+      
+          try {
+            // Upload the file
+            const uploadResponse = await fetch(`${API_BASE_URL}/upload/`, {
+              method: 'POST',
+              body: formData,
+            });
+      
+            if (!uploadResponse.ok) {
+              throw new Error('File upload failed');
+            }
+      
+            console.log(`File uploaded successfully - ${file.name}`);
+      
+            // Run the add_song script
+            const filePath = `D:/Music-Player-App/media/music/${file.name}`; // Adjust the path as needed
+            const addSongResponse = await fetch(`${API_BASE_URL}/api/run-add-song/`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ file_path: filePath }),
+            });
+      
+            if (!addSongResponse.ok) {
+              throw new Error('Failed to add song');
+            }
+      
+            const addSongData = await addSongResponse.json();
+            console.log(addSongData.message);
+      
+            // Refresh the page to reflect the changes
+            window.location.reload();
+          } catch (error) {
+            console.error('Error uploading file or adding song:', error);
+          }
+        }
+      };
 
   const handleDeleteSong = async (song, stopAudioContext) => {
     if (songs.indexOf(song) === currentIndex && isPlaying) {

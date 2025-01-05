@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Song
 from django.shortcuts import get_object_or_404
+import subprocess
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -248,3 +249,21 @@ def get_lyrics(request, title, artist):
             return JsonResponse({'error': 'Lyrics not found'}, status=404)
     except Song.DoesNotExist:
         return JsonResponse({'error': 'Song not found'}, status=404)
+
+@api_view(['POST'])
+def run_add_song(request):
+    data = json.loads(request.body)
+    file_path = data.get('file_path')
+    if not file_path:
+        return JsonResponse({'error': 'No file path provided'}, status=400)
+
+    try:
+        # Use the correct Python interpreter from the virtual environment
+        python_interpreter = os.path.join(settings.BASE_DIR, 'venv', 'Scripts', 'python.exe')
+        result = subprocess.run([python_interpreter, 'manage.py', 'add_song', file_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            return JsonResponse({'message': 'Song added successfully'})
+        else:
+            return JsonResponse({'error': result.stderr}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
