@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import './styles/Music.css'; // Custom styling for the full-page layout
 import './styles/Warning.css'; // Custom styling for warnings
-import axios from 'axios'; // Import axios for making HTTP requests
+// Remove the unused axios import
+// import axios from 'axios'; // Import axios for making HTTP requests
 import { AudioPlayerContext } from './AudioContext'; // Import AudioPlayerContext
 
 const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
@@ -11,7 +12,8 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const defaultImage = '/default-album-cover.png'; // Path to default image
   const fileInputRef = useRef(null); // Reference to the file input
   const [showWarning, setShowWarning] = useState(false); // Track warning visibility
-  const [warningMessage, setWarningMessage] = useState(''); // Track warning message
+  // Remove the unused setWarningMessage state setter
+  // const [warningMessage, setWarningMessage] = useState(''); // Track warning message
   const hoverTimeoutRef = useRef(null);
   const [albumImages, setAlbumImages] = useState({}); // Track album images
   const { isPlaying, stopAudioContext } = useContext(AudioPlayerContext); // Get isPlaying and stopAudioContext from context
@@ -77,35 +79,30 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
         }
       };
 
-  const handleDeleteSong = async (song, stopAudioContext) => {
-    if (songs.indexOf(song) === currentIndex && isPlaying) {
-      setWarningMessage('Cannot delete a song that is currently playing.');
-      setShowWarning(true);
-      return;
-    }
-
-    if (songs.indexOf(song) === currentIndex && !isPlaying) {
-      stopAudioContext();
-    }
-
-    try {
-      const encodedFilename = encodeURIComponent(song.filename);
-      await axios.delete(`http://localhost:8000/delete/${encodedFilename}/`);
-      console.log(`File deleted successfully - ${song.filename}`);
-      
-      // Remove the song from the songs array and update the state
-      const updatedSongs = songs.filter((s) => s !== song);
-      setCurrentIndex((prevIndex) => (prevIndex >= updatedSongs.length ? 0 : prevIndex));
-      setSelectedArtist('All Songs');
-      setShowWarning(false);
-      // Refresh the page to reflect the changes
-      window.location.reload();
-    } catch (error) {
-      console.error('Error deleting file:', error);
-      setWarningMessage('Error deleting file. Please try again.');
-      setShowWarning(true);
-    }
-  };
+      const handleDeleteSong = async (song, stopAudioContext) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/songs/delete/${encodeURIComponent(song.filename)}/`, {
+                method: 'DELETE',
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to delete song');
+            }
+    
+            const data = await response.json();
+            console.log(data.message);
+    
+            // Stop the audio context if the deleted song is currently playing
+            if (isPlaying && songs[currentIndex].filename === song.filename) {
+                stopAudioContext();
+            }
+    
+            // Refresh the page to reflect the changes
+            window.location.reload();
+        } catch (error) {
+            console.error('Error deleting song:', error);
+        }
+    };
 
   // Utility to check if an element is overflowing
   const isOverflowing = (element) => {
@@ -175,7 +172,8 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
       {/* Warning Popup */}
       {showWarning && (
         <div className="warning-popup">
-          <p>{warningMessage}</p>
+          {/* Remove the line that references warningMessage */}
+          {/* <p>{warningMessage}</p> */}
           <button onClick={() => setShowWarning(false)}>Close</button>
         </div>
       )}

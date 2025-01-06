@@ -67,60 +67,6 @@ def upload_music_file(request):
 
     return JsonResponse({'message': 'File uploaded successfully'})
 
-@api_view(['DELETE'])
-def delete_music_file(request, filename):
-    decoded_filename = unquote(filename)
-    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
-
-    try:
-        song = Song.objects.get(file_path=file_path)
-
-        if os.path.exists(file_path):
-            os.remove(file_path)
-
-        # Delete album image if it exists
-        if song.albumImage and os.path.exists(song.albumImage.path):
-            os.remove(song.albumImage.path)
-
-        # Delete lyrics file if it exists
-        if song.lyrics_path and os.path.exists(song.lyrics_path):
-            os.remove(song.lyrics_path)
-
-        song.delete()
-        return JsonResponse({'message': 'File and database entry deleted successfully'})
-    except Song.DoesNotExist:
-        return JsonResponse({'error': 'Song not found in database'}, status=404)
-    except PermissionError:
-        return JsonResponse({'error': 'Permission denied. Please check file permissions.'}, status=403)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@csrf_exempt
-def delete_song(request, filename):
-    if request.method == 'DELETE':
-        try:
-            song = get_object_or_404(Song, file_path__endswith=filename)
-            if os.path.exists(song.file_path):
-                os.remove(song.file_path)
-
-            # Delete album image if it exists
-            if song.albumImage and os.path.exists(song.albumImage.path):
-                os.remove(song.albumImage.path)
-
-            # Delete lyrics file if it exists
-            if song.lyrics_path and os.path.exists(song.lyrics_path):
-                os.remove(song.lyrics_path)
-
-            song.delete()
-            return JsonResponse({'message': 'File and database entry deleted successfully'}, status=200)
-        except Song.DoesNotExist:
-            return JsonResponse({'error': 'Song not found in database'}, status=404)
-        except PermissionError:
-            return JsonResponse({'error': 'Permission denied. Please check file permissions.'}, status=403)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
 @api_view(['GET'])
 def status_view(request):
     return Response({'status': 'Django Backend Running'})
@@ -267,3 +213,13 @@ def run_add_song(request):
             return JsonResponse({'error': result.stderr}, status=500)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def delete_song(request, filename):
+    decoded_filename = unquote(filename)
+    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return JsonResponse({'message': 'File deleted successfully'})
+    else:
+        return JsonResponse({'error': 'File not found'}, status=404)
