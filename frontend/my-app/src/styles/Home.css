@@ -27,17 +27,17 @@
 }
 
 .lyrics {
-  font-size: 2rem;
-  line-height: 2;
+  font-size: 1.5rem;
+  line-height: 1.5;
   color: white;
   text-align: center;
   white-space: pre-wrap; /* Preserve formatting including line breaks */
-  margin: 20px; /* Add margin for spacing */
   overflow-y: scroll; /* Enable vertical scrolling */
   max-height: 100%; /* Ensure it doesn't exceed the container height */
   position: relative;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  font-family: 'Nunito', sans-serif;
 }
 
 .lyrics::-webkit-scrollbar {
@@ -60,6 +60,17 @@
   margin: 10px 5px 0 10px; /* 10px gap on the left, 5px gap between containers */
 }
 
+.song-display-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px; /* Rounded corners */
+  z-index: -1; /* Behind the content */
+  filter: grayscale() blur(2px) opacity(0.25); /* Grayscale, blur, and opacity */
+}
+
 .song-info {
   margin: 5px 0;
   width: 100%;
@@ -67,16 +78,27 @@
 }
 
 .title-info {
-  font-size: 4rem;
+  font-size: 5rem;
   color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-  user-select: none; /* Standard syntax */
+  text-shadow:
+    2px 2px 0 #000000a0,
+    -2px 2px 0 #000000a0,
+    -2px -2px 0 #000000a0,
+    2px -2px 0 #000000a0;
+  user-select: none; /* Standard syntax */  
+  font-family: 'Roboto', sans-serif;
 }
 
 .artist-info {
-  font-size: 2rem;
-  color: rgba(235, 235, 235, 0.75);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  font-size: 3rem;
+  color: rgb(240, 240, 240);
+  text-shadow:
+    2px 2px 0 #000000a0,
+    -2px 2px 0 #000000a0,
+    -2px -2px 0 #000000a0,
+    2px -2px 0 #000000a0;
+  user-select: none; /* Standard syntax */
+  font-family: 'Open Sans', sans-serif;
 }
 
 .album-image-container {

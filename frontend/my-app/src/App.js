@@ -7,7 +7,7 @@ import 'react-h5-audio-player/lib/styles.css';
 import { AudioPlayerContext, AudioProvider } from './AudioContext';
 import Home from './HomePage';
 import Music from './MusicPage';
-import SideBar from './ArtistPage';
+import QueuePage from './QueuePage';
 import Explore from './Explore';
 import AudioVisualizer from './AudioVisualizer';
 import Settings from './Settings';
@@ -133,7 +133,16 @@ function AppContent() {
                         />
                     }
                 />
-                <Route path="/artist" element={<SideBar currentSong={currentSong} />} />
+                <Route
+                    path="/queue"
+                    element={
+                        <QueuePage
+                            songs={songs}
+                            currentIndex={currentIndex}
+                            setCurrentIndex={setCurrentIndex}
+                        />
+                    }
+                />
                 <Route
                     path="/music"
                     element={
@@ -195,10 +204,10 @@ function AppContent() {
                     <div className="line"></div>
                     Home
                 </Link>
-                <Link to="/artist" className="nav-item" onClick={handleNavigation}>
+                <Link to="/queue" className="nav-item" onClick={handleNavigation}>
                     <div className="line"></div>
                     <div className="line"></div>
-                    Artist
+                    Queue
                 </Link>
                 <Link to="/music" className="nav-item" onClick={handleNavigation}>
                     <div className="line"></div>

@@ -1,0 +1,190 @@
+/* Full Page Structure */
+.queue-music-page {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(20, 20, 20, 0.95);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Artist Panel on the Left */
+/* Content Container */
+.queue-content-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+/* Artist Panel on the Left */
+.queue-artist-panel {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+  padding: 20px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Right Side Panel */
+.queue-right-panel {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
+  padding: 20px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Artist Button Styling */
+.queue-artist-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 15px;
+  margin: 8px 0;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+  width: 100%;
+}
+
+.queue-artist-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: all 0.5s;
+}
+
+.queue-artist-button:hover::before {
+  left: 100%;
+}
+.queue-artist-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transform: translateX(5px);
+}
+
+.queue-artist-button.active {
+  background-color: rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: bold;
+}
+
+/* Header */
+.queue-music-header {
+  width: 100%;
+  background-color: rgba(30, 30, 30, 0.95);
+  padding: 20px 0;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 103;
+}
+
+.queue-music-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Song Grid Container */
+.queue-song-grid-container {
+  flex: 2;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* Song Grid */
+.queue-song-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+/* Song Card */
+.queue-song-card {
+  width: 100%;
+  max-width: 200px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.queue-song-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+.queue-song-card.active {
+  background-color: rgba(255, 255, 255, 0.3); /* Highlight active song */
+  font-weight: bold;
+}
+
+.queue-song-card .queue-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(1px);
+  opacity: 0.3;
+  z-index: 0;
+}
+
+.queue-song-card .song-details {
+  position: relative;
+  z-index: 1;
+}
+
+/* Thumbnail */
+.queue-song-thumbnail {
+  width: 100px; /* Larger thumbnails */
+  height: 100px;
+  padding: 5px;
+  object-fit: cover;
+  border-radius: 8px; /* Rounded corners */
+  margin-bottom: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add depth */
+}
+
+/* Song Details */
+.queue-song-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Song Title */
+.queue-song-title, .queue-song-artist {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 5px 0;
+  text-align: center; /* Default alignment */
+  overflow: hidden; /* Hide overflowing text */
+  white-space: nowrap; /* Prevent wrapping */
+  text-overflow: ellipsis; /* Show ellipsis by default */
+  position: relative; /* Required for animation */
+  display: inline-block; /* Ensure proper animation display */
+}
+

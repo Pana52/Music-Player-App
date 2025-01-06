@@ -1,4 +1,5 @@
 import os
+import time
 from urllib.parse import unquote
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -13,6 +14,9 @@ from rest_framework.views import APIView
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .models import Song
+from django.shortcuts import get_object_or_404
+import subprocess
+from django.core.exceptions import ObjectDoesNotExist
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -64,16 +68,6 @@ def upload_music_file(request):
             destination.write(chunk)
 
     return JsonResponse({'message': 'File uploaded successfully'})
-
-@api_view(['DELETE'])
-def delete_music_file(request, filename):
-    decoded_filename = unquote(filename)
-    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        return JsonResponse({'message': 'File deleted successfully'})
-    else:
-        return JsonResponse({'error': 'File not found'}, status=404)
 
 @api_view(['GET'])
 def status_view(request):
@@ -203,3 +197,62 @@ def get_lyrics(request, title, artist):
             return JsonResponse({'error': 'Lyrics not found'}, status=404)
     except Song.DoesNotExist:
         return JsonResponse({'error': 'Song not found'}, status=404)
+
+@api_view(['POST'])
+def run_add_song(request):
+    data = json.loads(request.body)
+    file_path = data.get('file_path')
+    if not file_path:
+        return JsonResponse({'error': 'No file path provided'}, status=400)
+
+    try:
+        # Use the correct Python interpreter from the virtual environment
+        python_interpreter = os.path.join(settings.BASE_DIR, 'venv', 'Scripts', 'python.exe')
+        result = subprocess.run([python_interpreter, 'manage.py', 'add_song', file_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            return JsonResponse({'message': 'Song added successfully'})
+        else:
+            return JsonResponse({'error': result.stderr}, status=500)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def delete_song(request, artist, title):
+    try:
+        # Log the request method
+        print(f"Request method: {request.method}")
+
+        record = Song.objects.get(artist=artist, title=title)
+        
+        # Check if the file exists before attempting to delete it
+        if record.file_path and os.path.exists(record.file_path):
+            # Ensure the file is not being used by another process
+            for _ in range(5):  # Retry up to 5 times
+                try:
+                    os.remove(record.file_path)
+                    break
+                except PermissionError:
+                    time.sleep(1)  # Wait for 1 second before retrying
+            else:
+                raise PermissionError(f"File {record.file_path} is being used by another process.")
+        
+        # Find the lyrics file using the lyrics_path field and delete it
+        if record.lyrics_path and os.path.exists(record.lyrics_path):
+            os.remove(record.lyrics_path)
+        # Find the album image file using the albumImage field and delete it
+        if record.albumImage and os.path.exists(record.albumImage.path):
+            os.remove(record.albumImage.path)
+        # Delete the record from the database
+        record.delete()
+        
+        return JsonResponse({'message': 'Song deleted successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except PermissionError as e:
+        # Log the specific error
+        print(f"Permission error deleting song: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+    except Exception as e:
+        # Log the specific error
+        print(f"Error deleting song: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
