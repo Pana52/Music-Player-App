@@ -1,9 +1,10 @@
 import React, { createContext, useRef, useState, useEffect, useCallback } from 'react';
 
 export const AudioPlayerContext = createContext();
+let audioRef; // Declare audioRef
 
 export function AudioProvider({ children }) {
-    const audioRef = useRef(null);
+    audioRef = useRef(null); // Initialize audioRef inside the component
     const audioContextRef = useRef(null);
     const mediaElementSourceRef = useRef(null);
     const [currentSong, setCurrentSong] = useState(null);
@@ -284,3 +285,8 @@ export function AudioProvider({ children }) {
         </AudioPlayerContext.Provider>
     );
 }
+
+// Custom hook to access audioRef
+export const useAudioRef = () => {
+    return audioRef;
+};

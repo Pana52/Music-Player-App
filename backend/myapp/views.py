@@ -1,4 +1,5 @@
 import os
+import time
 from urllib.parse import unquote
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -15,6 +16,7 @@ import json
 from .models import Song
 from django.shortcuts import get_object_or_404
 import subprocess
+from django.core.exceptions import ObjectDoesNotExist
 
 def home_view(request):
     return HttpResponse("Welcome to the Music Player App!")
@@ -215,11 +217,42 @@ def run_add_song(request):
         return JsonResponse({'error': str(e)}, status=500)
 
 @api_view(['DELETE'])
-def delete_song(request, filename):
-    decoded_filename = unquote(filename)
-    file_path = os.path.join(settings.MEDIA_ROOT, 'music', decoded_filename)
-    if os.path.exists(file_path):
-        os.remove(file_path)
-        return JsonResponse({'message': 'File deleted successfully'})
-    else:
-        return JsonResponse({'error': 'File not found'}, status=404)
+def delete_song(request, artist, title):
+    try:
+        # Log the request method
+        print(f"Request method: {request.method}")
+
+        record = Song.objects.get(artist=artist, title=title)
+        
+        # Check if the file exists before attempting to delete it
+        if record.file_path and os.path.exists(record.file_path):
+            # Ensure the file is not being used by another process
+            for _ in range(5):  # Retry up to 5 times
+                try:
+                    os.remove(record.file_path)
+                    break
+                except PermissionError:
+                    time.sleep(1)  # Wait for 1 second before retrying
+            else:
+                raise PermissionError(f"File {record.file_path} is being used by another process.")
+        
+        # Find the lyrics file using the lyrics_path field and delete it
+        if record.lyrics_path and os.path.exists(record.lyrics_path):
+            os.remove(record.lyrics_path)
+        # Find the album image file using the albumImage field and delete it
+        if record.albumImage and os.path.exists(record.albumImage.path):
+            os.remove(record.albumImage.path)
+        # Delete the record from the database
+        record.delete()
+        
+        return JsonResponse({'message': 'Song deleted successfully'})
+    except ObjectDoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except PermissionError as e:
+        # Log the specific error
+        print(f"Permission error deleting song: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+    except Exception as e:
+        # Log the specific error
+        print(f"Error deleting song: {e}")
+        return JsonResponse({'error': str(e)}, status=500)

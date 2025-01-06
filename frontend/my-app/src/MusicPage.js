@@ -3,7 +3,7 @@ import './styles/Music.css'; // Custom styling for the full-page layout
 import './styles/Warning.css'; // Custom styling for warnings
 // Remove the unused axios import
 // import axios from 'axios'; // Import axios for making HTTP requests
-import { AudioPlayerContext } from './AudioContext'; // Import AudioPlayerContext
+import { AudioPlayerContext, useAudioRef } from './AudioContext'; // Import AudioPlayerContext and useAudioRef
 
 const API_BASE_URL = 'http://localhost:8000'; // Backend server URL
 
@@ -17,6 +17,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const hoverTimeoutRef = useRef(null);
   const [albumImages, setAlbumImages] = useState({}); // Track album images
   const { isPlaying, stopAudioContext } = useContext(AudioPlayerContext); // Get isPlaying and stopAudioContext from context
+  const audioRef = useAudioRef(); // Use the custom hook to access audioRef
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -81,28 +82,36 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
 
       const handleDeleteSong = async (song, stopAudioContext) => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/songs/delete/${encodeURIComponent(song.filename)}/`, {
-                method: 'DELETE',
-            });
-    
-            if (!response.ok) {
-                throw new Error('Failed to delete song');
-            }
-    
-            const data = await response.json();
-            console.log(data.message);
-    
-            // Stop the audio context if the deleted song is currently playing
-            if (isPlaying && songs[currentIndex].filename === song.filename) {
-                stopAudioContext();
-            }
-    
-            // Refresh the page to reflect the changes
-            window.location.reload();
+          // Stop the audio context if the deleted song is currently playing
+          if (isPlaying && songs[currentIndex].filename === song.filename) {
+            stopAudioContext();
+            setCurrentIndex(null); // Clear the current song
+            await new Promise(resolve => setTimeout(resolve, 500)); // Add a small delay
+          }
+      
+          // Ensure the audio element is not using the file
+          if (audioRef.current?.audio.current) {
+            audioRef.current.audio.current.src = '';
+          }
+      
+          // Delete the song data from the server
+          const response = await fetch(`${API_BASE_URL}/api/songs/delete/${song.artist}/${song.title}/`, {
+            method: 'DELETE', // Ensure the method is DELETE
+          });
+      
+          if (!response.ok) {
+            throw new Error('Failed to delete song data from server');
+          }
+      
+          const data = await response.json();
+          console.log(data.message);
+      
+          // Refresh the page to reflect the changes
+          window.location.reload();
         } catch (error) {
-            console.error('Error deleting song:', error);
+          console.error('Error deleting song:', error);
         }
-    };
+      };
 
   // Utility to check if an element is overflowing
   const isOverflowing = (element) => {

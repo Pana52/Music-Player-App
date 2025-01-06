@@ -16,6 +16,6 @@ urlpatterns = [
     path('album-image/<str:title>/', get_album_image),
     path('lyrics/<str:title>/<str:artist>/', get_lyrics),
     path('run-add-song/', run_add_song, name='run_add_song'),
-    path('songs/delete/<str:filename>/', delete_song, name='delete_song'),
+    path('songs/delete/<str:artist>/<str:title>/', delete_song, name='delete_song'),  # Ensure the trailing slash
     path('', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
