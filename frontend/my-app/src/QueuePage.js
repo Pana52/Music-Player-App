@@ -11,6 +11,7 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
   const fileInputRef = useRef(null); // Reference to the file input
   const hoverTimeoutRef = useRef(null);
   const [albumImages, setAlbumImages] = useState({}); // Track album images
+  const [queue, setQueue] = useState([]); // Track the queue
 
   // Get unique artists and include "All Songs"
   const artists = ['All Songs', ...new Set(songs.map((song) => song.artist))];
@@ -21,8 +22,19 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
       ? songs
       : songs.filter((song) => song.artist === selectedArtist);
 
-  const handleSongClick = (index) => {
-    setCurrentIndex(index);
+  const handleSongClick = async (song) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/add-to-queue/`, {
+        artist: song.artist,
+        title: song.title,
+      });
+      console.log(`Song added to queue - ${song.title} by ${song.artist}`);
+      // Fetch the updated queue
+      const response = await axios.get(`${API_BASE_URL}/api/queue/`);
+      setQueue(response.data.queue);
+    } catch (error) {
+      console.error('Error adding song to queue:', error);
+    }
   };
 
   const handleArtistClick = (artist) => {
@@ -113,6 +125,28 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
     fetchAlbumImages();
   }, [songs]);
 
+  const fetchQueue = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/queue/`);
+      setQueue(response.data.queue);
+    } catch (error) {
+      console.error('Error fetching queue:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchQueue();
+  }, []);
+
+  const handleRemoveFromQueue = async (id) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/api/remove_from_queue/${id}/`);
+      fetchQueue();
+    } catch (error) {
+      console.error('Error removing song from queue:', error);
+    }
+  };
+
   return (
     <div className="queue-music-page">
       <header className="queue-music-header">
@@ -147,11 +181,9 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
               filteredSongs.map((song, index) => (
                 <div
                   key={index}
-                  className={`queue-song-card ${
-                    songs.indexOf(song) === currentIndex ? 'active' : ''
-                  }`}
+                  className="queue-song-card"
                   onClick={() => {
-                    handleSongClick(songs.indexOf(song));
+                    handleSongClick(song);
                     playSoundEffect('http://localhost:8000/media/sound effects/SFX_Save.mp3');
                   }}
                   onMouseEnter={handleMouseEnter}
@@ -180,7 +212,23 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
         </div>
         {/* Right Side Panel */}
         <div className="queue-right-panel">
-          {/* Leave this empty for now */}
+          <h2>Queue</h2>
+          <ul>
+            {queue.map((song, index) => (
+              <li key={song.id}>
+                <div className="queue-list">
+                  <div className="queue-song-info">
+                    <span className="queue-song-title">{song.title}</span>
+                    <span className="queue-song-artist">{song.artist}</span>
+                  </div>
+                  {/* Remove song from queue */}
+                  <button className="queue-remove-button"
+                      onClick={() => handleRemoveFromQueue(song.id)}
+                      >X</button>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </div>

@@ -256,3 +256,64 @@ def delete_song(request, artist, title):
         # Log the specific error
         print(f"Error deleting song: {e}")
         return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def add_to_queue(request):
+    try:
+        data = json.loads(request.body)
+        artist = data.get('artist')
+        title = data.get('title')
+
+        if not artist or not title:
+            return JsonResponse({'error': 'Artist and title are required'}, status=400)
+
+        song = Song.objects.get(artist=artist, title=title)
+        song_id = song.id
+
+        queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+        with open(queue_file_path, 'r') as file:
+            queue_data = json.load(file)
+
+        # Generate a unique ID for the queue item
+        new_id = max([int(item['id']) for item in queue_data['queue']], default=0) + 1
+        queue_data['queue'].append({'id': str(new_id), 'songId': str(song_id)})
+
+        with open(queue_file_path, 'w') as file:
+            json.dump(queue_data, file, indent=2)
+
+        return JsonResponse({'message': 'Song added to queue successfully'})
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        # Log the specific error
+        print(f"Error adding song to queue: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_queue(request):
+    queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+    try:
+        with open(queue_file_path, 'r') as file:
+            queue_data = json.load(file)
+        song_list = []
+        for item in queue_data['queue']:
+            song = Song.objects.get(id=item['songId'])
+            song_list.append({'id': item['id'], 'title': song.title, 'artist': song.artist})
+        return JsonResponse({'queue': song_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['DELETE'])
+def remove_from_queue(request, song_id):
+    queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+    try:
+        with open(queue_file_path, 'r') as file:
+            queue_data = json.load(file)
+        queue_data['queue'] = [item for item in queue_data['queue'] if item['id'] != str(song_id)]
+        with open(queue_file_path, 'w') as file:
+            json.dump(queue_data, file, indent=2)
+        return JsonResponse({'message': 'Song removed from queue successfully'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
