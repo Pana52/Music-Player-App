@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import list_music_files, get_music_file, status_view, upload_music_file, settings_view, reset_settings_view, get_album_image, get_lyrics, run_add_song, delete_song, add_to_queue, get_queue, remove_from_queue
+from .views import list_music_files, get_music_file, status_view, upload_music_file, settings_view, reset_settings_view, get_album_image, get_lyrics, run_add_song, delete_song, add_to_queue, get_queue, remove_from_queue, get_current_queue_song
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework import routers
@@ -20,5 +20,6 @@ urlpatterns = [
     path('add-to-queue/', add_to_queue, name='add_to_queue'),  # New endpoint
     path('queue/', get_queue, name='get_queue'),  # New endpoint
     path('remove_from_queue/<int:song_id>/', remove_from_queue, name='remove_from_queue'),  # New endpoint
+    path('current-queue-song/', get_current_queue_song, name='get_current_queue_song'),  # New endpoint
     path('', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -317,3 +317,27 @@ def remove_from_queue(request, song_id):
         return JsonResponse({'message': 'Song removed from queue successfully'})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+@api_view(['GET'])
+def get_current_queue_song(request):
+    queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+    try:
+        with open(queue_file_path, 'r') as file:
+            queue_data = json.load(file)
+        if not queue_data['queue']:
+            return JsonResponse({'message': 'Queue is empty'}, status=404)
+        
+        # Get the first song in the queue
+        first_song = queue_data['queue'].pop(0)
+        first_song_id = first_song['songId']
+        song = Song.objects.get(id=first_song_id)
+
+        # Save the updated queue back to the file
+        with open(queue_file_path, 'w') as file:
+            json.dump(queue_data, file, indent=2)
+
+        return JsonResponse({'id': song.id, 'title': song.title, 'artist': song.artist, 'filename': song.file_path.split('/')[-1]})
+    except Song.DoesNotExist:
+        return JsonResponse({'error': 'Song not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

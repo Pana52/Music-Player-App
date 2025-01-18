@@ -29,8 +29,6 @@ function AppContent() {
         toggleVisualizer,
         applyEqualizerPreset,
         setPlaybackSpeed,
-        autoplay,
-        setAutoplay,
         keybinds,
         jumpSteps,
     } = useContext(AudioPlayerContext);
@@ -51,10 +49,9 @@ function AppContent() {
                 adjustVolume(data.volume);
                 applyEqualizerPreset(data.equalizerPreset);
                 setPlaybackSpeed(data.playbackSpeed || 1);
-                setAutoplay(data.autoplay);
             })
             .catch(error => console.error('Error loading config:', error));
-    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef, setAutoplay]);
+    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef]);
 
     useEffect(() => {
         fetch('http://localhost:8000/api/songs/')
@@ -111,6 +108,32 @@ function AppContent() {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, [handleKeyDown]);
+
+    const handleSongEnd = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/api/current-queue-song/');
+            if (response.ok) {
+                const data = await response.json();
+                const nextSongIndex = songs.findIndex(song => song.filename === data.filename);
+                if (nextSongIndex !== -1) {
+                    setCurrentIndex(nextSongIndex);
+                    audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+                } else {
+                    // If the song is not found in the array, continue with the next song in the list
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                    audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+                }
+            } else {
+                // If the queue is empty or an error occurred, continue with the next song in the list
+                setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+            }
+        } catch (error) {
+            console.error('Error handling song end:', error);
+            setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+            audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+        }
+    };
 
     if (!config) {
         return <div>Loading...</div>;
@@ -184,11 +207,7 @@ function AppContent() {
                     adjustVolume(sliderValue);
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
-                onEnded={() => {
-                    if (autoplay) {
-                        setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
-                    }
-                }}
+                onEnded={handleSongEnd}
                 hasDefaultKeyBindings={false} // Disable default key bindings
                 customAdditionalControls={[
                     <button key="toggle-visualizer" onClick={toggleVisualizer}>
