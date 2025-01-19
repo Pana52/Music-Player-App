@@ -147,6 +147,26 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
     }
   };
 
+  const saveQueue = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/save-queue/`);
+      console.log('Queue saved successfully');
+      fetchQueue();
+    } catch (error) {
+      console.error('Error saving queue:', error);
+    }
+  };
+
+  const loadQueue = async () => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/load-queue/`);
+      console.log('Queue loaded successfully');
+      fetchQueue();
+    } catch (error) {
+      console.error('Error loading queue:', error);
+    }
+  };
+
   return (
     <div className="queue-music-page">
       <header className="queue-music-header">
@@ -229,6 +249,10 @@ function Music({ songs, currentIndex, setCurrentIndex }) {
               </li>
             ))}
           </ul>
+          <div className="queue-save-load-buttons">
+            <button className="queue-save-button" onClick={saveQueue}>SAVE</button>
+            <button className="queue-load-button" onClick={loadQueue}>LOAD</button>
+          </div>
         </div>
       </div>
     </div>

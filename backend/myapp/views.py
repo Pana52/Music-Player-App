@@ -341,3 +341,32 @@ def get_current_queue_song(request):
         return JsonResponse({'error': 'Song not found'}, status=404)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+
+# copy the QueuePlayList.json file to the SavedPlayList.json file
+@api_view(['POST'])
+def save_queue(request):
+    queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+    saved_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'SavedPlayList.json')
+    try:
+        with open(queue_file_path, 'r') as file:
+            queue_data = json.load(file)
+        with open(saved_file_path, 'w') as file:
+            json.dump(queue_data, file, indent=2)
+        return JsonResponse({'message': 'Queue saved successfully'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# copy the SavedPlayList.json file to the QueuePlayList.json file
+@api_view(['POST'])
+def load_queue(request):
+    queue_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'QueuePlayList.json')
+    saved_file_path = os.path.join(settings.MEDIA_ROOT, 'queue', 'SavedPlayList.json')
+    try:
+        with open(saved_file_path, 'r') as file:
+            queue_data = json.load(file)
+        with open(queue_file_path, 'w') as file:
+            json.dump(queue_data, file, indent=2)
+        return JsonResponse({'message': 'Queue Loaded successfully'})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)

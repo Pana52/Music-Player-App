@@ -33,7 +33,7 @@
   backdrop-filter: blur(10px);
   overflow-y: auto;
   border-left: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 100px;
+  padding-bottom: 50px;
 }
 
 /* Queue List */
@@ -246,5 +246,56 @@
   text-overflow: ellipsis;
   position: relative;
   display: inline-block;
+}
+
+/* Save and Load Buttons */
+.queue-save-load-buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 20px;
+}
+
+.queue-save-button,
+.queue-load-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: static; /* Remove absolute positioning */
+  padding: 15px 30px;
+  margin: 10px;
+  font-size: 16px;
+  background: rgba(50, 50, 50, 0.7);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: background 0.3s, box-shadow 0.3s;
+  width: 50%;
+}
+
+.queue-save-button:hover,
+.queue-load-button:hover {
+  background: rgba(178, 178, 178, 0.9);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.queue-save-button::after,
+.queue-load-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.queue-save-button:hover::after,
+.queue-load-button:hover::after {
+  opacity: 1;
 }
 
