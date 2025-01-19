@@ -186,5 +186,7 @@ Thumbs.db
 /media/music/*
 !/media/music/.gitkeep
 
-/media/music data/*
-!/media/music%20data/.gitkeep
+/media/music data/*/*
+!/media/music data/.gitkeep
+!/media/music data/album covers/.gitkeep
+!/media/music data/lyrics/.gitkeep

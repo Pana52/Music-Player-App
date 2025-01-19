@@ -1,9 +1,10 @@
 import React, { createContext, useRef, useState, useEffect, useCallback } from 'react';
 
 export const AudioPlayerContext = createContext();
+let audioRef; // Declare audioRef
 
 export function AudioProvider({ children }) {
-    const audioRef = useRef(null);
+    audioRef = useRef(null); // Initialize audioRef inside the component
     const audioContextRef = useRef(null);
     const mediaElementSourceRef = useRef(null);
     const [currentSong, setCurrentSong] = useState(null);
@@ -127,6 +128,17 @@ export function AudioProvider({ children }) {
             }
         } catch (error) {
             console.error('Error initializing AudioContext:', error);
+        }
+    }, []);
+
+    const stopAudioContext = useCallback(() => {
+        if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+            audioContextRef.current.close().then(() => {
+                mediaElementSourceRef.current = null;
+                debugLog('AudioContext stopped and disconnected.');
+            }).catch((error) => {
+                console.error('Error stopping AudioContext:', error);
+            });
         }
     }, []);
 
@@ -266,9 +278,15 @@ export function AudioProvider({ children }) {
                 setKeybinds, // Provide setKeybinds function
                 jumpSteps,
                 setJumpSteps,
+                stopAudioContext, // Expose stopAudioContext
             }}
         >
             {children}
         </AudioPlayerContext.Provider>
     );
 }
+
+// Custom hook to access audioRef
+export const useAudioRef = () => {
+    return audioRef;
+};

@@ -2,8 +2,8 @@ body {
     margin: auto;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
     overflow: auto;
-    background: black;
-    animation: gradient 15s ease infinite;
+    background: linear-gradient(315deg, rgba(101,0,94,1) 3%, rgba(25,25,255,1) 38%, rgb(238, 187, 48) 68%, rgba(255,25,25,1) 98%);
+    animation: gradient 60s ease infinite;
     background-size: 400% 400%;
     background-attachment: fixed;
 }
@@ -21,7 +21,7 @@ body {
 }
 
 .wave {
-    background: rgb(255 255 255 / 25%);
+    background: rgb(255 255 255 / 15%); /* Reduced opacity for less intensity */
     border-radius: 1000% 1000% 0 0;
     position: fixed;
     width: 200%;

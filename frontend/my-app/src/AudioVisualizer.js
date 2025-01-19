@@ -6,14 +6,14 @@ import { AudioPlayerContext } from './AudioContext';
 const AudioVisualizer = ({
     audioRef,
     fftSize = 2048,
-    barWidth = 8,
-    barSpacing = 4,
+    barWidth = 16,
+    barSpacing = 8,
     gradientColors = [
-        { pos: 0, color: 'rgba(255, 255, 255, 0.3)' }, // Light reflection at the top
-        { pos: 0.3, color: 'rgba(255, 255, 255, 0.1)' }, // Glossy fade
-        { pos: 0.5, color: 'rgba(0, 255, 255, 0.5)' }, // Transparent glassy midsection
-        { pos: 0.8, color: 'rgba(0, 0, 255, 0.3)' }, // Darker bottom
-        { pos: 1, color: 'rgba(0, 0, 0, 0.1)' }, // Transparent bottom
+        { pos: 0, color: 'rgba(255, 255, 255, 0.5)' }, // Light reflection at the top
+        { pos: 0.3, color: 'rgba(255, 255, 255, 0.3)' }, // Glossy fade
+        { pos: 0.5, color: 'rgba(255, 255, 255, 0.2)' }, // Transparent glassy midsection
+        { pos: 0.8, color: 'rgba(255, 255, 255, 0.1)' }, // Lighter bottom
+        { pos: 1, color: 'rgba(255, 255, 255, 0.05)' }, // Transparent bottom
     ],
     isVisible
 }) => {
@@ -40,10 +40,10 @@ const AudioVisualizer = ({
                             fftSize: fftSize,
                             barWidth: barWidth,
                             barSpacing: barSpacing,
-                            mode: 2, // Centered bars
+                            mode: 5, // Centered bars
                             showScaleX: false,
                             showScaleY: false,
-                            showBgColor: true,
+                            showBgColor: false, // Disable background color
                             bgAlpha: 0,
                             overlay: true,
                             fsWidth: window.innerWidth / 2,

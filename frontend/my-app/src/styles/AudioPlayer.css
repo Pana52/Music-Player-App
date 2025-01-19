@@ -97,4 +97,7 @@
   bottom: 60px; /* Space above navigation bar */
   width: 100%; /* Cover the entire width */
   z-index: 998; /* Below the audio player */
+  background: rgba(255, 255, 255, 0.1); /* Transparent white for glass effect */
+  backdrop-filter: blur(10px); /* Apply blur for glass effect */
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border for definition */
 }

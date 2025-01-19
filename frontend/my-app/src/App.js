@@ -7,7 +7,7 @@ import 'react-h5-audio-player/lib/styles.css';
 import { AudioPlayerContext, AudioProvider } from './AudioContext';
 import Home from './HomePage';
 import Music from './MusicPage';
-import SideBar from './ArtistPage';
+import QueuePage from './QueuePage';
 import Explore from './Explore';
 import AudioVisualizer from './AudioVisualizer';
 import Settings from './Settings';
@@ -29,8 +29,6 @@ function AppContent() {
         toggleVisualizer,
         applyEqualizerPreset,
         setPlaybackSpeed,
-        autoplay,
-        setAutoplay,
         keybinds,
         jumpSteps,
     } = useContext(AudioPlayerContext);
@@ -51,10 +49,9 @@ function AppContent() {
                 adjustVolume(data.volume);
                 applyEqualizerPreset(data.equalizerPreset);
                 setPlaybackSpeed(data.playbackSpeed || 1);
-                setAutoplay(data.autoplay);
             })
             .catch(error => console.error('Error loading config:', error));
-    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef, setAutoplay]);
+    }, [adjustVolume, applyEqualizerPreset, setPlaybackSpeed, audioRef]);
 
     useEffect(() => {
         fetch('http://localhost:8000/api/songs/')
@@ -112,12 +109,39 @@ function AppContent() {
         };
     }, [handleKeyDown]);
 
+    const handleSongEnd = async () => {
+        try {
+            const response = await fetch('http://localhost:8000/api/current-queue-song/');
+            if (response.ok) {
+                const data = await response.json();
+                const nextSongIndex = songs.findIndex(song => song.filename === data.filename);
+                if (nextSongIndex !== -1) {
+                    setCurrentIndex(nextSongIndex);
+                    audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+                } else {
+                    // If the song is not found in the array, continue with the next song in the list
+                    setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                    audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+                }
+            } else {
+                // If the queue is empty or an error occurred, continue with the next song in the list
+                setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+                audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+            }
+        } catch (error) {
+            console.error('Error handling song end:', error);
+            setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
+            audioRef.current.audio.current.play(); // Ensure the next song plays automatically
+        }
+    };
+
     if (!config) {
         return <div>Loading...</div>;
     }
 
     return (
         <div className="App">
+            <div className='wave'></div>
             <div className='wave'></div>
             <div className='wave'></div>
             <Routes>
@@ -132,7 +156,16 @@ function AppContent() {
                         />
                     }
                 />
-                <Route path="/artist" element={<SideBar currentSong={currentSong} />} />
+                <Route
+                    path="/queue"
+                    element={
+                        <QueuePage
+                            songs={songs}
+                            currentIndex={currentIndex}
+                            setCurrentIndex={setCurrentIndex}
+                        />
+                    }
+                />
                 <Route
                     path="/music"
                     element={
@@ -174,11 +207,7 @@ function AppContent() {
                     adjustVolume(sliderValue);
                     console.log('[DEBUG]: Slider Value:', sliderValue);
                 }}
-                onEnded={() => {
-                    if (autoplay) {
-                        setCurrentIndex((prevIndex) => (prevIndex + 1) % songs.length);
-                    }
-                }}
+                onEnded={handleSongEnd}
                 hasDefaultKeyBindings={false} // Disable default key bindings
                 customAdditionalControls={[
                     <button key="toggle-visualizer" onClick={toggleVisualizer}>
@@ -194,10 +223,10 @@ function AppContent() {
                     <div className="line"></div>
                     Home
                 </Link>
-                <Link to="/artist" className="nav-item" onClick={handleNavigation}>
+                <Link to="/queue" className="nav-item" onClick={handleNavigation}>
                     <div className="line"></div>
                     <div className="line"></div>
-                    Artist
+                    Queue
                 </Link>
                 <Link to="/music" className="nav-item" onClick={handleNavigation}>
                     <div className="line"></div>
